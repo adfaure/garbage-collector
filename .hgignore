@@ -1,0 +1,6 @@
+Makefile
+Garabage_collector
+.c9/*
+obj/*
+syntax: glob
+    *.make
