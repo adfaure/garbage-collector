@@ -21,6 +21,13 @@ class smart_ptr {
 			#endif 
 		};
 
+		~smart_ptr() {
+			#ifdef DEBUG
+				std::cout << "~smart_ptr()" << std::endl;  
+			#endif 
+			elem = NULL;
+		};
+
 		/** 
 		 * \brief overload of operator = in case of acces to element
 		 *

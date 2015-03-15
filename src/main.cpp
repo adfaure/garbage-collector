@@ -25,4 +25,5 @@ int main() {
 		std::cout<<"doit etre null ? " << *ptr2 << std::endl;
 	}
 	garbage_collector::resetInstance();
+	return 0;
 }
