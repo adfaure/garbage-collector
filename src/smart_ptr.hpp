@@ -1,6 +1,8 @@
 #ifndef _smart_ptr_
 #define _smart_ptr_
 
+#include "garbage_collector.hpp"
+
 /**
  * \brief smartPointer class
  */ 
@@ -13,7 +15,7 @@ class smart_ptr {
 		 * \brief Constructor
 		 *
 		 */
-		smart_ptr() : elem(NULL) {
+		smart_ptr() : elem(NULL), garbage(garbage_collector::get_instance()) {
 			#ifdef DEBUG
 				std::cout << "smart_ptr()" << std::endl;  
 			#endif 
@@ -75,5 +77,10 @@ class smart_ptr {
 		 * \brief element 
 		 */
 		T *elem;
+
+		/**
+		 *
+		 */
+		IGarbageCollector &garbage;
 };
 #endif 

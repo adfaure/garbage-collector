@@ -10,17 +10,28 @@ garbage_collector &garbage_collector::get_instance() {
 }
 
 garbage_collector::~garbage_collector() {
-    delete instance;
+	#ifdef DEBUG
+		std::cout<< "~garbage_collector()" << std::endl;
+	#endif
 }
 		
-void on_attach() {
+void garbage_collector::on_attach() {
 	#ifdef DEBUG
 		std::cout<< "on_attach()" << std::endl;
 	#endif
 }
 
-void on_detach() {
+void garbage_collector::on_detach() {
 	#ifdef DEBUG
 		std::cout<< "on_detach()" << std::endl;
 	#endif
+}
+
+
+void garbage_collector::resetInstance() {
+	#ifdef DEBUG
+		std::cout<< "resetInstance()" << std::endl;
+	#endif
+	delete instance;
+	instance = NULL;	
 }

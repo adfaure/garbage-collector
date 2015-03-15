@@ -26,6 +26,11 @@ class garbage_collector : public IGarbageCollector {
 		 *
 		 */
 		void on_detach();
+
+		/**
+		 *
+		 */
+		static void resetInstance();
     
     private : 
         
@@ -37,7 +42,7 @@ class garbage_collector : public IGarbageCollector {
         /**
          * 
          */
-        garbage_collector() : IGarbageCollector() {};
+        garbage_collector() {};
         
         /**
          * 
