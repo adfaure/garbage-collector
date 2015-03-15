@@ -4,3 +4,4 @@ Garabage_collector
 obj/*
 syntax: glob
     *.make
+	*.swp

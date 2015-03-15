@@ -7,6 +7,7 @@
 class garbage_collector {
     
     public :
+
         /**
          * 
          */
@@ -17,7 +18,7 @@ class garbage_collector {
         /**
          * 
          */
-        static garbage_collector* instance;
+        static garbage_collector *instance;
         
         /**
          * 
