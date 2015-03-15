@@ -9,10 +9,11 @@ solution "Mif31Garbage_colletor"
         language "C++"
         files { "src/*" }
 
-    
     configuration "Debug"
-         defines { "DEBUG" }
-         flags { "Symbols" }
-    
+        defines { "DEBUG" }
+        flags { "Symbols" }
+
     configuration "Release"
-         flags { "Symbols" }
+        flags { "Symbols" }
+        configuration { "linux", "gmake" }
+            buildoptions {"-Wall", "-std=c++14","-Weffc++", "-ansi", "-pedantic"}         

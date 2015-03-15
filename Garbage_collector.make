@@ -26,7 +26,7 @@ ifeq ($(config),debug)
   DEFINES   += -DDEBUG
   INCLUDES  += 
   CPPFLAGS  += -MMD -MP $(DEFINES) $(INCLUDES)
-  CFLAGS    += $(CPPFLAGS) $(ARCH) -g
+  CFLAGS    += $(CPPFLAGS) $(ARCH) -g -Wall -std=c++14 -Weffc++ -ansi -pedantic
   CXXFLAGS  += $(CFLAGS) 
   LDFLAGS   += 
   LIBS      += 
@@ -48,7 +48,7 @@ ifeq ($(config),release)
   DEFINES   += 
   INCLUDES  += 
   CPPFLAGS  += -MMD -MP $(DEFINES) $(INCLUDES)
-  CFLAGS    += $(CPPFLAGS) $(ARCH) -g
+  CFLAGS    += $(CPPFLAGS) $(ARCH) -g -Wall -std=c++14 -Weffc++ -ansi -pedantic
   CXXFLAGS  += $(CFLAGS) 
   LDFLAGS   += 
   LIBS      += 
@@ -70,7 +70,7 @@ ifeq ($(config),debug64)
   DEFINES   += -DDEBUG
   INCLUDES  += 
   CPPFLAGS  += -MMD -MP $(DEFINES) $(INCLUDES)
-  CFLAGS    += $(CPPFLAGS) $(ARCH) -g -m64
+  CFLAGS    += $(CPPFLAGS) $(ARCH) -g -m64 -Wall -std=c++14 -Weffc++ -ansi -pedantic
   CXXFLAGS  += $(CFLAGS) 
   LDFLAGS   += -m64 -L/usr/lib64
   LIBS      += 
@@ -92,7 +92,7 @@ ifeq ($(config),release64)
   DEFINES   += 
   INCLUDES  += 
   CPPFLAGS  += -MMD -MP $(DEFINES) $(INCLUDES)
-  CFLAGS    += $(CPPFLAGS) $(ARCH) -g -m64
+  CFLAGS    += $(CPPFLAGS) $(ARCH) -g -m64 -Wall -std=c++14 -Weffc++ -ansi -pedantic
   CXXFLAGS  += $(CFLAGS) 
   LDFLAGS   += -m64 -L/usr/lib64
   LIBS      += 
@@ -114,7 +114,7 @@ ifeq ($(config),debuguniv)
   DEFINES   += -DDEBUG
   INCLUDES  += 
   CPPFLAGS  +=  $(DEFINES) $(INCLUDES)
-  CFLAGS    += $(CPPFLAGS) $(ARCH) -g -arch i386 -arch x86_64 -arch ppc -arch ppc64
+  CFLAGS    += $(CPPFLAGS) $(ARCH) -g -arch i386 -arch x86_64 -arch ppc -arch ppc64 -Wall -std=c++14 -Weffc++ -ansi -pedantic
   CXXFLAGS  += $(CFLAGS) 
   LDFLAGS   += -arch i386 -arch x86_64 -arch ppc -arch ppc64
   LIBS      += 
@@ -136,7 +136,7 @@ ifeq ($(config),releaseuniv)
   DEFINES   += 
   INCLUDES  += 
   CPPFLAGS  +=  $(DEFINES) $(INCLUDES)
-  CFLAGS    += $(CPPFLAGS) $(ARCH) -g -arch i386 -arch x86_64 -arch ppc -arch ppc64
+  CFLAGS    += $(CPPFLAGS) $(ARCH) -g -arch i386 -arch x86_64 -arch ppc -arch ppc64 -Wall -std=c++14 -Weffc++ -ansi -pedantic
   CXXFLAGS  += $(CFLAGS) 
   LDFLAGS   += -arch i386 -arch x86_64 -arch ppc -arch ppc64
   LIBS      += 
@@ -152,9 +152,10 @@ ifeq ($(config),releaseuniv)
 endif
 
 OBJECTS := \
-	$(OBJDIR)/garbage_collector.o \
-	$(OBJDIR)/main.o \
+	$(OBJDIR)/IGarbageCollector.o \
 	$(OBJDIR)/smart_ptr.o \
+	$(OBJDIR)/main.o \
+	$(OBJDIR)/garbage_collector.o \
 
 RESOURCES := \
 
@@ -215,13 +216,16 @@ $(GCH): $(PCH)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 endif
 
-$(OBJDIR)/garbage_collector.o: src/garbage_collector.cpp
+$(OBJDIR)/IGarbageCollector.o: src/IGarbageCollector.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+$(OBJDIR)/smart_ptr.o: src/smart_ptr.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 $(OBJDIR)/main.o: src/main.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-$(OBJDIR)/smart_ptr.o: src/smart_ptr.cpp
+$(OBJDIR)/garbage_collector.o: src/garbage_collector.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
