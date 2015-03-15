@@ -23,22 +23,24 @@ class smart_ptr {
 		 * \brief overload of operator = in case of acces to element
 		 *
 		 */
-		void operator =(T *var_elem) {
+		smart_ptr<T> &operator =(T *var_elem) {
 			 #ifdef DEBUG
 				std::cout<< "smart_ptr operator =(elem *) "<< var_elem << std::endl;
 			 #endif
 			elem = var_elem;
+			return (*this);
 		};
 		
 		/**
 		 * \brief overload operator = in case of affectation to another smart pointers
 		 *
 		 */
-		void operator =(smart_ptr<T> ptr)  {
+		smart_ptr<T> &operator =(smart_ptr<T> ptr)  {
 			#ifdef DEBUG 
 				std::cout<< "smart_ptr operator =(smart_ptr)" << std::endl;  
 			#endif
 			this->elem = ptr.elem; 
+			return (*this);
 		};
 		
 		/** 

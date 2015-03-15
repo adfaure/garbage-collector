@@ -1,10 +1,13 @@
 #ifndef _GARBAGE_HPP
 #define _GARBAGE_HPP
 
+#include "IGarbageCollector.hpp"
+#include <iostream> 
+
 /**
  * 
  */
-class garbage_collector {
+class garbage_collector : public IGarbageCollector {
     
     public :
 
@@ -12,6 +15,17 @@ class garbage_collector {
          * 
          */
         static garbage_collector& get_instance();
+
+		/**
+		 * \brief 
+		 *
+		 */
+		void on_attach();
+		
+		/**
+		 *
+		 */
+		void on_detach();
     
     private : 
         
@@ -23,7 +37,7 @@ class garbage_collector {
         /**
          * 
          */
-        garbage_collector() {};
+        garbage_collector() : IGarbageCollector() {};
         
         /**
          * 

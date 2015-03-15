@@ -152,10 +152,10 @@ ifeq ($(config),releaseuniv)
 endif
 
 OBJECTS := \
-	$(OBJDIR)/IGarbageCollector.o \
-	$(OBJDIR)/smart_ptr.o \
-	$(OBJDIR)/main.o \
 	$(OBJDIR)/garbage_collector.o \
+	$(OBJDIR)/IGarbageCollector.o \
+	$(OBJDIR)/main.o \
+	$(OBJDIR)/smart_ptr.o \
 
 RESOURCES := \
 
@@ -216,16 +216,16 @@ $(GCH): $(PCH)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 endif
 
-$(OBJDIR)/IGarbageCollector.o: src/IGarbageCollector.cpp
+$(OBJDIR)/garbage_collector.o: src/garbage_collector.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-$(OBJDIR)/smart_ptr.o: src/smart_ptr.cpp
+$(OBJDIR)/IGarbageCollector.o: src/IGarbageCollector.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 $(OBJDIR)/main.o: src/main.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-$(OBJDIR)/garbage_collector.o: src/garbage_collector.cpp
+$(OBJDIR)/smart_ptr.o: src/smart_ptr.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
