@@ -5,7 +5,7 @@
 int main() {
     int *test_int, un_int;
 	un_int = 2;
-	test_int = &un_int;
+	test_int = new(0) int;
     garbage_collector &singleton = garbage_collector::get_instance();   
     #ifdef DEBUG
         std::cout<< "mode debug [on] \n";

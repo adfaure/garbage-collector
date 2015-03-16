@@ -1,8 +1,10 @@
 #ifndef _smart_ptr_
 #define _smart_ptr_
 
+#include <new>
 #include "garbage_collector.hpp"
-
+#include <exception> // for std::bad_alloc
+#include <cstdlib> // for malloc() and free()
 /**
  * \brief smartPointer class
  */ 
@@ -90,4 +92,7 @@ class smart_ptr {
 		 */
 		IGarbageCollector &garbage;
 };
+
+void* operator new (std::size_t size, int bidon)  throw (std::bad_alloc);
+
 #endif 
