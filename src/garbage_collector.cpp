@@ -1,12 +1,9 @@
 #include "garbage_collector.hpp"
 
-garbage_collector *garbage_collector::instance = 0;
+garbage_collector garbage_collector::instance;
 
 garbage_collector &garbage_collector::get_instance() {
-    if(!instance) {
-        instance = new garbage_collector();
-    }
-    return (*instance);
+    return (instance);
 }
 
 garbage_collector::~garbage_collector() {
@@ -32,6 +29,4 @@ void garbage_collector::resetInstance() {
 	#ifdef DEBUG
 		std::cout<< "resetInstance()" << std::endl;
 	#endif
-	delete instance;
-	instance = NULL;	
 }

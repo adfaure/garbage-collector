@@ -37,7 +37,7 @@ class garbage_collector : public IGarbageCollector {
         /**
          * 
          */
-        static garbage_collector *instance;
+        static garbage_collector instance;
         
         /**
          * 
