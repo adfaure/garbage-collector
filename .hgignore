@@ -3,5 +3,6 @@ Garabage_collector
 .c9/*
 obj/*
 syntax: glob
-    *.make
-	*.swp
+*.make
+*.swp
+Garbage_collector
