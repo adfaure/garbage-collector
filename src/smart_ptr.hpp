@@ -23,10 +23,26 @@ class smart_ptr {
 			#endif 
 		};
 
+		/**
+		* \brief Copy Constructor
+		*
+		*/
+		explicit smart_ptr(const smart_ptr & rhs) :
+				elem(rhs.elem), garbage(garbage_collector::get_instance()) // TODO copy semantic ?
+		{
+			#ifdef DEBUG
+				std::cout << "smart_ptr(const smart_ptr &)" << std::endl;
+			#endif
+		};
+
+
+		/**
+		 * \brief destructor
+		 */
 		~smart_ptr() {
 			#ifdef DEBUG
-				std::cout << "~smart_ptr()" << std::endl;  
-			#endif 
+				std::cout << "~smart_ptr()" << std::endl;
+			#endif
 			elem = NULL;
 		};
 
@@ -46,14 +62,14 @@ class smart_ptr {
 		 * \brief overload operator = in case of affectation to another smart pointers
 		 *
 		 */
-		smart_ptr<T> &operator =(smart_ptr<T> ptr)  {
-			#ifdef DEBUG 
-				std::cout<< "smart_ptr operator =(smart_ptr)" << std::endl;  
+		smart_ptr<T> &operator =(const smart_ptr<T> &ptr)  {
+			#ifdef DEBUG
+				std::cout<< "smart_ptr operator =(smart_ptr)" << std::endl;
 			#endif
-			this->elem = ptr.elem; 
+			this->elem = ptr.elem;
 			return (*this);
 		};
-		
+
 		/** 
 		 * \brief deferencing element to accès element
 		 *
@@ -93,6 +109,6 @@ class smart_ptr {
 		IGarbageCollector &garbage;
 };
 
-void* operator new (std::size_t size, int bidon)  throw (std::bad_alloc);
+void* operator new (std::size_t size, int bidon) throw (std::bad_alloc);
 
 #endif 
