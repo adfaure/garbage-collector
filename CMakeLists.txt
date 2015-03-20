@@ -18,4 +18,4 @@ set(SOURCE_FILES src/main.cpp src/IGarbageCollector.cpp
     src/smart_ptr.hpp src/generique_pointer.hpp src/generique_pointer.cpp)
 
 # EXECUTABLE
-add_executable(Garbage_collector ${SOURCE_FILES})
+add_executable(Garbage_collector ${SOURCE_FILES} src/testing_object.hpp src/testing_object.cpp)

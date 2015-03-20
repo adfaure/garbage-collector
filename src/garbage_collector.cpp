@@ -41,7 +41,13 @@ void garbage_collector::on_detach(void *mem, generique_pointer ptr) {
 		#endif
 	} else {
 		this->memblocks.at(mem).erase(ptr);
-		//TODO Maybe for the first version, we should dessalocate memory when there is no pointers pointing on.
+		#ifdef DEBUG
+			std::cout<< "	no pointer on (" << mem <<")... deleting " << std::endl;
+		#endif
+		if(this->memblocks.at(mem).empty()) {
+			this->memblocks.erase(mem);
+			delete mem;
+ 		}
 	}
 }
 
