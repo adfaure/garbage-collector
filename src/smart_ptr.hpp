@@ -139,9 +139,7 @@ class smart_ptr : public generique_pointer {
             return (*elem);
         };
 
-        /**
-         * \brief overload arrow operator to member accès
-         *
+        /** Overload arrow operator to member access
          */
         T *operator->() const {
             #ifdef DEBUG
@@ -150,9 +148,8 @@ class smart_ptr : public generique_pointer {
             return elem;
         };
 
-        /**
-        *
-        */
+        /** Egality operator
+         */
         inline bool operator==(const T* r_member) {
             return r_member == this->elem;
         };

@@ -14,55 +14,45 @@ class garbage_collector : public IGarbageCollector {
     
     public :
 
-        /**
-         * \brief Brief description.
+        /** Get an instance of the singleton
          */
         static garbage_collector& get_instance();
 
-        /**
-         * \brief Brief description.
+        /** Brief description.
          */
         void on_attach(void *, generique_pointer);
 
-        /**
-         * \brief Brief description.
+        /** Brief description.
          */
         void on_detach(void *, generique_pointer);
 
-        /**
-         * \brief Brief description.
+        /** Brief description.
          */
         void on_new(void *);
 
-        /**
-         * \brief Brief description.
+        /** Brief description.
          */
         static void resetInstance();
     
     private : 
 
-        /**
-         * \brief Brief description.
+        /** Brief description.
          */
         void free_all();
 
-        /**
-         * \brief Brief description.
+        /** Brief description.
          */
         static garbage_collector instance;
 
-        /**
-         * \brief Brief description.
+        /** Brief description.
          */
         std::map<void *, std::set<generique_pointer> > memblocks;
 
-        /**
-         * \brief Brief description.
+        /** Private constructor to ensure the singleton pattern
          */
         garbage_collector();
         
-        /**
-         * \brief Brief description.
+        /** Destructor
          */
         ~garbage_collector();
 };

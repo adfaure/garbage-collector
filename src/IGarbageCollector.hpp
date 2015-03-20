@@ -17,7 +17,13 @@ class IGarbageCollector {
          */
         virtual void on_detach(void *, generique_pointer)	  = 0;
 
+        /** Informs the garbage collector that a dynamic allocation was done
+         *   using inside our overloaded "new" function
+         */
         virtual void on_new(void *)	  = 0;
+
+        /** Destructor
+         */
         virtual ~IGarbageCollector()  = 0;
 };
 
