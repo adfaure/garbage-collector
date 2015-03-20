@@ -2,9 +2,10 @@
 #define _GARBAGE_HPP
 
 #include "IGarbageCollector.hpp"
-#include "IGarbageCollector.hpp"
+#include "generique_pointer.hpp"
 #include <iostream>
-#include <vector>
+#include <map>
+#include <set>
 
 /**
  * 
@@ -22,12 +23,12 @@ class garbage_collector : public IGarbageCollector {
 		 * \brief 
 		 *
 		 */
-		void on_attach();
+		void on_attach(void *, generique_pointer);
 		
 		/**
 		 *
 		 */
-		void on_detach();
+		void on_detach(void *, generique_pointer);
 
         /**
          *
@@ -54,7 +55,7 @@ class garbage_collector : public IGarbageCollector {
         /**
          *
          */
-        std::vector<void *> memblocks;
+        std::map<void *, std::set<generique_pointer> > memblocks;
 
         /**
          * 

@@ -16,4 +16,4 @@ solution "Mif31Garbage_colletor"
     configuration "Release"
         flags { "Symbols" }
         configuration { "linux", "gmake" }
-            buildoptions {"-Wall", "-std=c++14","-Weffc++", "-ansi", "-pedantic"}         
+            buildoptions {"-Wall", "-std=c++11","-Weffc++", "-ansi", "-pedantic"}

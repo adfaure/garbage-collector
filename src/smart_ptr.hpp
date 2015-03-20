@@ -2,39 +2,45 @@
 #define _smart_ptr_
 
 #include <new>
-#include "garbage_collector.hpp"
+#include <iostream>
 #include <exception> // for std::bad_alloc
 #include <cstdlib> // for malloc() and free()
+#include "generique_pointer.hpp"
+#include "IGarbageCollector.hpp"
+#include "garbage_collector.hpp"
+
 /**
  * \brief smartPointer class
  */ 
 template<typename T>
-class smart_ptr {
+class smart_ptr : public generique_pointer {
 	
 	public :
 
 		/**
 		 * \brief Constructor
 		 *
-		 */
-		smart_ptr() : elem(NULL), garbage(garbage_collector::get_instance()) {
+		*/
+		smart_ptr(T* elem = NULL) : generique_pointer(),
+									elem(elem),
+									garbage(garbage_collector::get_instance()) {
 			#ifdef DEBUG
-				std::cout << "smart_ptr()" << std::endl;  
-			#endif 
+				std::cout << "smart_ptr()" << std::endl;
+			#endif
 		};
 
 		/**
 		* \brief Copy Constructor
 		*
 		*/
-		explicit smart_ptr(const smart_ptr & rhs) :
-				elem(rhs.elem), garbage(garbage_collector::get_instance()) // TODO copy semantic ?
+		smart_ptr(const smart_ptr & rhs) : generique_pointer(),
+										   elem(rhs.elem),
+										   garbage(garbage_collector::get_instance()) // TODO copy semantic ?
 		{
 			#ifdef DEBUG
 				std::cout << "smart_ptr(const smart_ptr &)" << std::endl;
 			#endif
 		};
-
 
 		/**
 		 * \brief destructor
@@ -92,6 +98,9 @@ class smart_ptr {
 			return elem;
 		};
 
+		/**
+		*
+		*/
 		inline bool operator==(const T* r_member) {
 			return r_member == this->elem;
 		};

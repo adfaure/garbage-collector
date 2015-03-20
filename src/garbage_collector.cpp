@@ -1,4 +1,5 @@
 #include "garbage_collector.hpp"
+#include "smart_ptr.hpp"
 
 garbage_collector garbage_collector::instance;
 
@@ -15,16 +16,33 @@ garbage_collector::~garbage_collector() {
 	this->free_all();
 }
 		
-void garbage_collector::on_attach() {
+void garbage_collector::on_attach(void *mem, generique_pointer ptr) {
 	#ifdef DEBUG
 		std::cout<< "garbage_collector::on_attach()" << std::endl;
 	#endif
+	std::map<void*, std::set<generique_pointer> >::iterator ptrs = this->memblocks.find(mem);
+	if(ptrs == this->memblocks.end()) {
+		#ifdef DEBUG
+				std::cout<< "	aucune entré pour dans le garbage collector" << mem << std::endl;
+		#endif
+	} else {
+		this->memblocks.at(mem).insert(ptr);
+	}
 }
 
-void garbage_collector::on_detach() {
+void garbage_collector::on_detach(void *mem, generique_pointer ptr) {
 	#ifdef DEBUG
 		std::cout<< "garbage_collector::on_detach()" << std::endl;
 	#endif
+	std::map<void*, std::set<generique_pointer> >::iterator ptrs = this->memblocks.find(mem);
+	if(ptrs == this->memblocks.end()) {
+		#ifdef DEBUG
+			std::cout<< "	aucune entré pour dans le garbage collector" << mem << std::endl;
+		#endif
+	} else {
+		this->memblocks.at(mem).erase(ptr);
+		//TODO Maybe for the first version, we should dessalocate memory when there is no pointers pointing on.
+	}
 }
 
 void garbage_collector::free_all()
@@ -32,10 +50,6 @@ void garbage_collector::free_all()
 	#ifdef DEBUG
 		std::cout<< "garbage_collector::free_all()" << std::endl;
 	#endif
-	for (std::vector<void*>::iterator it = this->memblocks.begin(); it != this->memblocks.end(); it++)
-	{
-		 delete *it;
-	}
 }
 
 void garbage_collector::on_new(void * memblock)
@@ -43,7 +57,8 @@ void garbage_collector::on_new(void * memblock)
 	#ifdef DEBUG
 		std::cout<< "garbage_collector::on_new(" << memblock << ")" << std::endl;
 	#endif
-	this->memblocks.push_back(memblock);
+	std::set<generique_pointer> set; // TODO i think this line is weird, do we have a better issue to insert the set in ourm ap?
+	this->memblocks.insert(std::pair<void*, std::set<generique_pointer> >(memblock, set));
 }
 
 void garbage_collector::resetInstance() {

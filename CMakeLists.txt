@@ -15,4 +15,4 @@ set(CMAKE_CXX_FLAGS "-std=c++14 -Wall -Weffc++ -pedantic")
 set(SOURCE_FILES src/main.cpp src/IGarbageCollector.cpp src/IGarbageCollector.hpp src/garbage_collector.hpp src/garbage_collector.cpp src/smart_ptr.cpp src/smart_ptr.hpp)
 
 # EXECUTABLE
-add_executable(Garbage_collector ${SOURCE_FILES})
+add_executable(Garbage_collector ${SOURCE_FILES} src/generique_pointer.hpp src/generique_pointer.h src/generique_pointer.cpp)

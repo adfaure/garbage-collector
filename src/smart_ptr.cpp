@@ -7,8 +7,8 @@
 void* operator new (size_t size, int) throw (std::bad_alloc)
 {
 	#ifdef DEBUG
-		std::cout<< "oerator new(size_t ) " << std::endl;
-	#endif	
+		std::cout<< "operator new(size_t ) " << std::endl;
+	#endif
 	void *p = malloc(size);
 	if (p == 0) // did malloc succeed?
 	{
