@@ -8,62 +8,61 @@
 #include <set>
 
 /**
- * 
+ * \brief This class represent our garbage collector
  */
 class garbage_collector : public IGarbageCollector {
     
     public :
 
         /**
-         * 
+         * \brief Brief description.
          */
         static garbage_collector& get_instance();
 
-		/**
-		 * \brief 
-		 *
-		 */
-		void on_attach(void *, generique_pointer);
-		
-		/**
-		 *
-		 */
-		void on_detach(void *, generique_pointer);
+        /**
+         * \brief Brief description.
+         */
+        void on_attach(void *, generique_pointer);
 
         /**
-         *
+         * \brief Brief description.
+         */
+        void on_detach(void *, generique_pointer);
+
+        /**
+         * \brief Brief description.
          */
         void on_new(void *);
 
-		/**
-		 *
-		 */
-		static void resetInstance();
+        /**
+         * \brief Brief description.
+         */
+        static void resetInstance();
     
     private : 
 
         /**
-         *
+         * \brief Brief description.
          */
         void free_all();
 
         /**
-         * 
+         * \brief Brief description.
          */
         static garbage_collector instance;
 
         /**
-         *
+         * \brief Brief description.
          */
         std::map<void *, std::set<generique_pointer> > memblocks;
 
         /**
-         * 
+         * \brief Brief description.
          */
         garbage_collector();
         
         /**
-         * 
+         * \brief Brief description.
          */
         ~garbage_collector();
 };

@@ -1,7 +1,6 @@
 #include <iostream>
 #include "garbage_collector.hpp"
 #include "smart_ptr.hpp"
-#include <cstdlib>
 
 int main() {
 

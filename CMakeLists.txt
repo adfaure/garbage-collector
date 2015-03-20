@@ -9,7 +9,7 @@ set (garbage-collector_VERSION_MINOR 1)
 set(CMAKE_CXX_FLAGS_DEBUG "-DDEBUG")
 
 # FLAGS
-set(CMAKE_CXX_FLAGS "-std=c++14 -Wall -Weffc++ -pedantic")
+set(CMAKE_CXX_FLAGS "-std=c++14 -Wall -Weffc++ -pedantic -g")
 
 # SOURCES
 set(SOURCE_FILES src/main.cpp src/IGarbageCollector.cpp

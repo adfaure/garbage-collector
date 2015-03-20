@@ -1,5 +1,4 @@
 #include "garbage_collector.hpp"
-#include "smart_ptr.hpp"
 
 garbage_collector garbage_collector::instance;
 

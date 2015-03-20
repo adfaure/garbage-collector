@@ -7,14 +7,15 @@
 
 #include <iostream>
 
+/** \brief general behavior of a smart pointer
+ */
 class generique_pointer {
 
     public :
         friend class garbage_collector;
 
-        /**
-        * \brief return egaliti on genrique pointers on their id attribute
-        */
+        /** \brief return egality on generics pointers on their id attribute
+         */
         inline bool operator ==(const generique_pointer &rhs) const {
         #ifdef DEBUG
                 std::cout << "bool operator ==(const generique_pointer &rhs)" << std::endl;
@@ -22,10 +23,9 @@ class generique_pointer {
                 return (this->id == rhs.id);
         };
 
-        /**
-        * \brief comapre two generique pointers on their id attribute
-        *
-        */
+        /** \brief compare two generics pointers on their id attributes
+         *
+         */
         inline bool operator <(const generique_pointer &rhs) const {
         #ifdef DEBUG
                 std::cout << "bool operator <(const generique_pointer &rhs)" << std::endl;
@@ -35,10 +35,7 @@ class generique_pointer {
 
 private :
 
-        /**
-        *
-        */
-        long id;
+        long id; /**< represent TODO */
 };
 
 #endif //_GARBAGE_COLLECTOR_GENERIQUE_POINTER_HPP_
