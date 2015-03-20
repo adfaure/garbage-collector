@@ -50,6 +50,10 @@ void garbage_collector::free_all()
 	#ifdef DEBUG
 		std::cout<< "garbage_collector::free_all()" << std::endl;
 	#endif
+	std::map<void*, std::set<generique_pointer> >::iterator it = this->memblocks.begin();
+	for(it; it != this->memblocks.end(); it++) {
+		delete it->first;
+	}
 }
 
 void garbage_collector::on_new(void * memblock)

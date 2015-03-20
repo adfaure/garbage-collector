@@ -21,12 +21,23 @@ class smart_ptr : public generique_pointer {
 		 * \brief Constructor
 		 *
 		*/
-		smart_ptr(T* elem = NULL) : generique_pointer(),
-									elem(elem),
-									garbage(garbage_collector::get_instance()) {
+		smart_ptr(T* var_elem = NULL) : generique_pointer(),
+										elem(var_elem),
+										garbage(garbage_collector::get_instance()) {
 			#ifdef DEBUG
-				std::cout << "smart_ptr()" << std::endl;
+				std::cout << "smart_ptr(T* elem = NULL)" << std::endl;
 			#endif
+
+			if(this->elem != NULL) {
+			#ifdef DEBUG
+				std::cout << "	smart_ptr initializing to ("<< var_elem <<") (used on attach)" << std::endl;
+			#endif
+				this->garbage.on_attach((void *) var_elem, *(this));
+			} else {
+			#ifdef DEBUG
+				std::cout << "	smart_ptr initializing to NULL " << std::endl;
+			#endif
+			}
 		};
 
 		/**
@@ -40,6 +51,16 @@ class smart_ptr : public generique_pointer {
 			#ifdef DEBUG
 				std::cout << "smart_ptr(const smart_ptr &)" << std::endl;
 			#endif
+			if(this->elem != NULL) {
+			#ifdef DEBUG
+				std::cout << "	smart_ptr initializing to ("<< rhs.elem <<") (used on attach)" << std::endl;
+			#endif
+				this->garbage.on_attach((void *) rhs.elem, *(this));
+			} else {
+			#ifdef DEBUG
+				std::cout << "	smart_ptr initializing to NULL " << std::endl;
+			#endif
+			}
 		};
 
 		/**
@@ -57,9 +78,24 @@ class smart_ptr : public generique_pointer {
 		 *
 		 */
 		smart_ptr<T> &operator =(T *var_elem) {
-			 #ifdef DEBUG
+			#ifdef DEBUG
 				std::cout<< "smart_ptr operator =(elem *) "<< var_elem << std::endl;
-			 #endif
+			#endif
+
+			if(this->elem != NULL) {
+			#ifdef DEBUG
+				std::cout << " detaching smart_ptr detaching to its previous element" << std::endl;
+			#endif
+				this->garbage.on_detach(this->elem, *(this));
+			}
+
+			if(var_elem != NULL ) {
+			#ifdef DEBUG
+				std::cout << "	smart_ptr attaching to element"<< std::endl;
+			#endif
+				this->garbage.on_attach((void *) var_elem , *(this));
+			}
+
 			elem = var_elem;
 			return (*this);
 		};
@@ -70,8 +106,24 @@ class smart_ptr : public generique_pointer {
 		 */
 		smart_ptr<T> &operator =(const smart_ptr<T> &ptr)  {
 			#ifdef DEBUG
-				std::cout<< "smart_ptr operator =(smart_ptr)" << std::endl;
+				std::cout<< "smart_ptr operator =(const smart_ptr<T> &ptr)" << std::endl;
 			#endif
+
+			if(this->elem != NULL) {
+			#ifdef DEBUG
+				std::cout << " detaching smart_ptr detaching to its previous element" << std::endl;
+			#endif
+				this->garbage.on_detach(this->elem, *(this));
+			}
+
+			if(ptr.elem != NULL ) {
+			#ifdef DEBUG
+				std::cout << "	smart_ptr attaching to element"<< std::endl;
+			#endif
+				this->garbage.on_attach((void *) ptr.elem, *(this));
+			}
+
+			//normal affectation
 			this->elem = ptr.elem;
 			return (*this);
 		};
