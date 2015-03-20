@@ -30,18 +30,24 @@ void garbage_collector::on_attach(void *mem, generique_pointer ptr) {
 }
 
 void garbage_collector::on_detach(void *mem, generique_pointer ptr) {
-    #ifdef DEBUG
-        std::cout<< "garbage_collector::on_detach()" << std::endl;
-    #endif
-    std::map<void*, std::set<generique_pointer> >::iterator ptrs = this->memblocks.find(mem);
-    if(ptrs == this->memblocks.end()) {
-        #ifdef DEBUG
-            std::cout<< "aucune entrée pour dans le garbage collector" << mem << std::endl;
-        #endif
-    } else {
-        this->memblocks.at(mem).erase(ptr);
-        //TODO Maybe for the first version, we should desalocate memory when there is no pointers pointing on.
-    }
+	#ifdef DEBUG
+		std::cout<< "garbage_collector::on_detach()" << std::endl;
+	#endif
+	std::map<void*, std::set<generique_pointer> >::iterator ptrs = this->memblocks.find(mem);
+	if(ptrs == this->memblocks.end()) {
+		#ifdef DEBUG
+			std::cout<< "	aucune entré pour dans le garbage collector" << mem << std::endl;
+		#endif
+	} else {
+		this->memblocks.at(mem).erase(ptr);
+		#ifdef DEBUG
+			std::cout<< "	no pointer on (" << mem <<")... deleting " << std::endl;
+		#endif
+		if(this->memblocks.at(mem).empty()) {
+			this->memblocks.erase(mem);
+			delete mem;
+ 		}
+	}
 }
 
 void garbage_collector::free_all()
