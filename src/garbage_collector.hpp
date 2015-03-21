@@ -1,11 +1,13 @@
 #ifndef _GARBAGE_HPP
 #define _GARBAGE_HPP
-
-#include "IGarbageCollector.hpp"
+#include "generique_memory_block.hpp"
 #include "generique_pointer.hpp"
+#include "memory_block.hpp"
 #include <iostream>
 #include <map>
 #include <set>
+#include <vector>
+#include <bits/stl_bvector.h>
 
 /**
  * \brief This class represent our garbage collector
@@ -40,8 +42,8 @@ class garbage_collector {
                     std::cout<< "	no pointer on (" << mem <<")... deleting " << std::endl;
                 #endif
                 if(this->memblocks.at(mem).empty()) {
-                    this->memblocks.erase(mem);
-                    delete static_cast<T *>(mem);
+                    memory_block<T> mem_block(mem);
+                    this->lost_blocks.push_back((generique_memory_block)mem_block);
                 }
             }
         }
@@ -58,15 +60,20 @@ class garbage_collector {
 
         /** Brief description.
          */
-        void free_all();
+        void garbage_collect();
 
         /** instance of the singleton
          */
         static garbage_collector instance;
 
+        /**
+         *
+         */
+        std::vector<generique_memory_block> lost_blocks;
+
         /** Associate memory block to the smartpointers that use the membock
          */
-        std::map<void *, std::set<generique_pointer> > memblocks;
+        std::map<void* , std::set<generique_pointer> > memblocks;
 
         /** Private constructor to ensure the singleton pattern
          */

@@ -6,13 +6,13 @@ garbage_collector &garbage_collector::get_instance() {
     return (instance);
 }
 
-garbage_collector::garbage_collector(): memblocks() {}
+garbage_collector::garbage_collector(): lost_blocks(), memblocks() {}
 
 garbage_collector::~garbage_collector() {
     #ifdef DEBUG
         std::cout<< "garbage_collector::~()" << std::endl;
     #endif
-    this->free_all();
+    this->garbage_collect();
 }
 
 void garbage_collector::on_attach(void *mem, generique_pointer ptr) {
@@ -29,14 +29,14 @@ void garbage_collector::on_attach(void *mem, generique_pointer ptr) {
     }
 }
 
-void garbage_collector::free_all()
+void garbage_collector::garbage_collect()
 {
     #ifdef DEBUG
-        std::cout<< "garbage_collector::free_all()" << std::endl;
+        std::cout<< "garbage_collector::garbage_collect()" << std::endl;
     #endif
-    std::map<void*, std::set<generique_pointer> >::iterator it = this->memblocks.begin();
-    for(it; it != this->memblocks.end(); it++) {
-        delete it->first;
+
+     for(std::vector<generique_memory_block>::iterator it = this->lost_blocks.begin() ; it != this->lost_blocks.end(); it++) {
+        it->destroy(); // FIXME : why base class function is calling here , should be the derived class because the function destroy() is virtual
     }
 }
 

@@ -6,7 +6,7 @@
 #include <exception> // for std::bad_alloc
 #include <cstdlib> // for malloc() and free()
 #include "generique_pointer.hpp"
-#include "IGarbageCollector.hpp"
+
 #include "garbage_collector.hpp"
 
 /**
