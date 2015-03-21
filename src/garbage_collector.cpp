@@ -13,6 +13,9 @@ garbage_collector::~garbage_collector() {
         std::cout<< "garbage_collector::~()" << std::endl;
     #endif
     this->garbage_collect();
+    for(std::vector<generique_memory_block*>::iterator it = this->lost_blocks.begin(); it != this->lost_blocks.end(); it++) {
+        delete *it;
+    }
 }
 
 void garbage_collector::on_attach(void *mem, generique_pointer ptr) {
@@ -20,9 +23,9 @@ void garbage_collector::on_attach(void *mem, generique_pointer ptr) {
         std::cout<< "garbage_collector::on_attach()" << std::endl;
     #endif
     std::map<void*, std::set<generique_pointer> >::iterator ptrs = this->memblocks.find(mem);
-    if(ptrs == this->memblocks.end()) {
+    if(ptrs == this->memblocks.end() && mem != NULL ) {
         #ifdef DEBUG
-                std::cout<< "aucune entrée pour dans le garbage collector" << mem << std::endl;
+                std::cout<< "no entry for " << mem << std::endl;
         #endif
     } else {
         this->memblocks.at(mem).insert(ptr);
@@ -33,10 +36,11 @@ void garbage_collector::garbage_collect()
 {
     #ifdef DEBUG
         std::cout<< "garbage_collector::garbage_collect()" << std::endl;
+        std::cout<< "   " <<this->lost_blocks.size() <<" memory block will be deleting "  << std::endl;
     #endif
 
-     for(std::vector<generique_memory_block>::iterator it = this->lost_blocks.begin() ; it != this->lost_blocks.end(); it++) {
-        it->destroy(); // FIXME : why base class function is calling here , should be the derived class because the function destroy() is virtual
+     for(std::vector<generique_memory_block*>::iterator it = this->lost_blocks.begin() ; it != this->lost_blocks.end(); it++) {
+         (*it)->destroy(); // FIXME : why base class function is calling here , should be the derived class because the function destroy() is virtual
     }
 }
 

@@ -31,19 +31,28 @@ class garbage_collector {
             #ifdef DEBUG
                 std::cout<< "garbage_collector::on_detach()" << std::endl;
             #endif
-            std::map<void*, std::set<generique_pointer> >::iterator ptrs = this->memblocks.find(mem);
-            if(ptrs == this->memblocks.end()) {
+            if(mem != NULL) {
+                std::map<void *, std::set<generique_pointer> >::iterator ptrs = this->memblocks.find(mem);
+                if (ptrs == this->memblocks.end()) {
                 #ifdef DEBUG
-                    std::cout<< "	aucune entré pour dans le garbage collector" << mem << std::endl;
+                    std::cout << "	no entry for " << mem << std::endl;
                 #endif
-            } else {
-                this->memblocks.at(mem).erase(ptr);
-                #ifdef DEBUG
-                    std::cout<< "	no pointer on (" << mem <<")... deleting " << std::endl;
-                #endif
-                if(this->memblocks.at(mem).empty()) {
-                    memory_block<T> mem_block(mem);
-                    this->lost_blocks.push_back((generique_memory_block)mem_block);
+                } else {
+                    this->memblocks.at(mem).erase(ptr);
+                    #ifdef DEBUG
+                    std::cout << "	no pointer on (" << mem << ")... deleting " << std::endl;
+                    #endif
+                    if (this->memblocks.at(mem).empty()) {
+                        // sorting block version
+                        memory_block<T> *mem_block = new memory_block<T>(mem);
+                        this->lost_blocks.push_back(mem_block);
+
+                        // classical version
+                        //this->memblocks.erase(mem);
+                        //delete static_cast<T *>(mem);
+
+
+                    }
                 }
             }
         }
@@ -69,7 +78,7 @@ class garbage_collector {
         /**
          *
          */
-        std::vector<generique_memory_block> lost_blocks;
+        std::vector<generique_memory_block*> lost_blocks; // TODO is that ok to use pointers? i would rather use references but it does not work
 
         /** Associate memory block to the smartpointers that use the membock
          */

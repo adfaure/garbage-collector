@@ -3,9 +3,11 @@
 #include "smart_ptr.hpp"
 #include "testing_object.hpp"
 
+#define POINTEUR(T) smart_ptr<T>
+
 int main() {
 
-    smart_ptr<test_obj> test = new(1) test_obj();
+    POINTEUR(test_obj) test = new(1) test_obj();
 
     return 0;
 }
