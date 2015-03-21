@@ -86,7 +86,7 @@ class smart_ptr : public generique_pointer {
             #ifdef DEBUG
                 std::cout << " detaching smart_ptr detaching to its previous element" << std::endl;
             #endif
-                this->garbage.on_detach(this->elem, *(this));
+                this->garbage. template on_detach<T>(this->elem, *(this));
             }
 
             if(var_elem != NULL ) {
@@ -113,7 +113,7 @@ class smart_ptr : public generique_pointer {
             #ifdef DEBUG
                 std::cout << " detaching smart_ptr detaching to its previous element" << std::endl;
             #endif
-                this->garbage.on_detach(this->elem, *(this));
+                this->garbage. template on_detach<T>(this->elem, *(this));
             }
 
             if(ptr.elem != NULL ) {
@@ -158,7 +158,7 @@ class smart_ptr : public generique_pointer {
 
         T *elem; /**< pointer on the content of the smartpointer */
 
-        IGarbageCollector &garbage; /**< the singleton instance of the        */
+        garbage_collector &garbage; /**< the singleton instance of the        */
                                     /**< garbage collector                    */
 };
 

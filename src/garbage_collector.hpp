@@ -10,7 +10,7 @@
 /**
  * \brief This class represent our garbage collector
  */
-class garbage_collector : public IGarbageCollector {
+class garbage_collector {
     
     public :
 
@@ -24,7 +24,27 @@ class garbage_collector : public IGarbageCollector {
 
         /** Brief description.
          */
-        void on_detach(void *, generique_pointer);
+        template<typename T>
+        void on_detach(void *mem, generique_pointer ptr) {
+            #ifdef DEBUG
+                std::cout<< "garbage_collector::on_detach()" << std::endl;
+            #endif
+            std::map<void*, std::set<generique_pointer> >::iterator ptrs = this->memblocks.find(mem);
+            if(ptrs == this->memblocks.end()) {
+                #ifdef DEBUG
+                    std::cout<< "	aucune entré pour dans le garbage collector" << mem << std::endl;
+                #endif
+            } else {
+                this->memblocks.at(mem).erase(ptr);
+                #ifdef DEBUG
+                    std::cout<< "	no pointer on (" << mem <<")... deleting " << std::endl;
+                #endif
+                if(this->memblocks.at(mem).empty()) {
+                    this->memblocks.erase(mem);
+                    delete static_cast<T *>(mem);
+                }
+            }
+        }
 
         /** Brief description.
          */
@@ -33,18 +53,18 @@ class garbage_collector : public IGarbageCollector {
         /** Brief description.
          */
         static void resetInstance();
-    
-    private : 
+
+    private :
 
         /** Brief description.
          */
         void free_all();
 
-        /** Brief description.
+        /** instance of the singleton
          */
         static garbage_collector instance;
 
-        /** Brief description.
+        /** Associate memory block to the smartpointers that use the membock
          */
         std::map<void *, std::set<generique_pointer> > memblocks;
 

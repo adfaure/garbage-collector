@@ -6,7 +6,7 @@ garbage_collector &garbage_collector::get_instance() {
     return (instance);
 }
 
-garbage_collector::garbage_collector(): IGarbageCollector(), memblocks() {}
+garbage_collector::garbage_collector(): memblocks() {}
 
 garbage_collector::~garbage_collector() {
     #ifdef DEBUG
@@ -27,27 +27,6 @@ void garbage_collector::on_attach(void *mem, generique_pointer ptr) {
     } else {
         this->memblocks.at(mem).insert(ptr);
     }
-}
-
-void garbage_collector::on_detach(void *mem, generique_pointer ptr) {
-	#ifdef DEBUG
-		std::cout<< "garbage_collector::on_detach()" << std::endl;
-	#endif
-	std::map<void*, std::set<generique_pointer> >::iterator ptrs = this->memblocks.find(mem);
-	if(ptrs == this->memblocks.end()) {
-		#ifdef DEBUG
-			std::cout<< "	aucune entré pour dans le garbage collector" << mem << std::endl;
-		#endif
-	} else {
-		this->memblocks.at(mem).erase(ptr);
-		#ifdef DEBUG
-			std::cout<< "	no pointer on (" << mem <<")... deleting " << std::endl;
-		#endif
-		if(this->memblocks.at(mem).empty()) {
-			this->memblocks.erase(mem);
-			delete mem;
- 		}
-	}
 }
 
 void garbage_collector::free_all()
