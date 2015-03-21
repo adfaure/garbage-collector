@@ -17,9 +17,6 @@ class generique_pointer {
         /** \brief return egality on generics pointers on their id attribute
          */
         inline bool operator ==(const generique_pointer &rhs) const {
-        #ifdef DEBUG
-                std::cout << "bool operator ==(const generique_pointer &rhs)" << std::endl;
-        #endif
                 return (this->id == rhs.id);
         };
 
@@ -27,9 +24,6 @@ class generique_pointer {
          *
          */
         inline bool operator <(const generique_pointer &rhs) const {
-        #ifdef DEBUG
-                std::cout << "bool operator <(const generique_pointer &rhs)" << std::endl;
-        #endif
                 return (this->id < rhs.id);
         };
 

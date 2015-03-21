@@ -70,6 +70,7 @@ class smart_ptr : public generique_pointer {
             #ifdef DEBUG
                 std::cout << "~smart_ptr()" << std::endl;
             #endif
+            this->garbage. template on_detach<T>(this->elem, *(this));
             elem = NULL;
         };
 
