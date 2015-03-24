@@ -8,13 +8,11 @@
 int main() {
 
     POINTEUR(test_obj) test = new(1) test_obj();
-
     std::cout << "-------------------------------" << std::endl;
 
-    test->add_dep();
-
+        test->add_dep();
 
     std::cout << "-------------------------------" << std::endl;
-
     return 0;
+
 }

@@ -6,7 +6,7 @@ garbage_collector &garbage_collector::get_instance() {
     return (instance);
 }
 
-garbage_collector::garbage_collector(): memblocks() {}
+garbage_collector::garbage_collector(): memblocks(), inner_smart_pointer() , assoc_size() {}
 
 garbage_collector::~garbage_collector() {
     #ifdef DEBUG
@@ -36,17 +36,29 @@ void garbage_collector::garbage_collect()
     #endif
 }
 
-void garbage_collector::on_new(void * memblock)
+void garbage_collector::on_new(void * memblock, std::size_t size)
 {
     #ifdef DEBUG
-        std::cout<< "garbage_collector::on_new(" << memblock << ")" << std::endl;
+        std::cout<< "garbage_collector::on_new(" << memblock << ") with size " << size << std::endl;
     #endif
     std::set<generique_pointer> set; // TODO i think this line is weird, do we have a better issue to insert the set in ourm ap?
+
     this->memblocks.insert(std::pair<void*, std::set<generique_pointer> >(memblock, set));
+
+    this->assoc_size.insert(std::pair<void*, std::size_t >(memblock, size));
 }
 
 void garbage_collector::resetInstance() {
     #ifdef DEBUG
         std::cout<< "garbage_collector::resetInstance()" << std::endl;
     #endif
+}
+
+void* garbage_collector::find_inner_object(generique_pointer *ptr) {
+    for(std::map<void* , std::set<generique_pointer> >::iterator it = this->memblocks.begin(); it != this->memblocks.end(); it++) {
+        if(it->first <= ptr && (it->first + this->assoc_size.at(it->first)) >= ptr) {
+          return it->first;
+        }
+    }
+    return NULL;
 }

@@ -13,6 +13,6 @@ void * operator new (size_t size, int) throw (std::bad_alloc)
     {
         throw std::bad_alloc(); // ANSI/ISO compliant behavior
     }
-    garbage_collector::get_instance().on_new(p);
+    garbage_collector::get_instance().on_new(p, size);
     return p;
 }

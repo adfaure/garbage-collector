@@ -9,6 +9,8 @@
 #include <vector>
 #include <bits/stl_bvector.h>
 
+#include <cstdlib> // for malloc() and free()
+
 /**
  * \brief This class represent our garbage collector
  */
@@ -57,7 +59,7 @@ class garbage_collector {
 
         /** Brief description.
          */
-        void on_new(void *);
+        void on_new(void *, std::size_t );
 
         /** Brief description.
          */
@@ -73,9 +75,24 @@ class garbage_collector {
          */
         static garbage_collector instance;
 
+        /** \brief return null if ptr is not attached to a memory block
+        *
+        */
+        void* find_inner_object(generique_pointer *);
+
         /** Associate memory block to the smartpointers that use the membock
          */
         std::map<void* , std::set<generique_pointer> > memblocks;
+
+        /**
+         *
+         */
+        std::map<void* , std::set<generique_pointer> > inner_smart_pointer;
+
+        /**
+        *
+        */
+        std::map<void* , std::size_t > assoc_size;
 
         /** Private constructor to ensure the singleton pattern
          */
