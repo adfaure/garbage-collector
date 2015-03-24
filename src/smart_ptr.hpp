@@ -121,6 +121,7 @@ class smart_ptr : public generique_pointer {
             #ifdef DEBUG
                 std::cout << "	smart_ptr attaching to element"<< std::endl;
             #endif
+
                 this->garbage.on_attach((void *) ptr.elem, *(this));
             }
 

@@ -15,7 +15,7 @@ garbage_collector::~garbage_collector() {
     this->garbage_collect();
 }
 
-void garbage_collector::on_attach(void *mem, generique_pointer ptr) {
+void garbage_collector::on_attach(void *mem, generique_pointer &ptr) {
     #ifdef DEBUG
         std::cout<< "garbage_collector::on_attach() (" << mem <<")" <<std::endl;
     #endif
@@ -25,6 +25,7 @@ void garbage_collector::on_attach(void *mem, generique_pointer ptr) {
                 std::cout<< "no entry for " << mem << std::endl;
         #endif
     } else {
+        this->find_inner_object(&ptr);
         this->memblocks.at(mem).insert(ptr);
     }
 }
@@ -55,9 +56,15 @@ void garbage_collector::resetInstance() {
 }
 
 void* garbage_collector::find_inner_object(generique_pointer *ptr) {
+    #ifdef DEBUG
+        std::cout << "void* garbage_collector::find_inner_object(generique_pointer *ptr) " << std::endl;
+    #endif
     for(std::map<void* , std::set<generique_pointer> >::iterator it = this->memblocks.begin(); it != this->memblocks.end(); it++) {
         if(it->first <= ptr && (it->first + this->assoc_size.at(it->first)) >= ptr) {
-          return it->first;
+        #ifdef DEBUG
+            std::cout << "      pointer ("<< ptr <<") is from " << it->first << std::endl;
+        #endif
+            return it->first;
         }
     }
     return NULL;

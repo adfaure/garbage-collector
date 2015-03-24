@@ -24,7 +24,7 @@ class garbage_collector {
 
         /** Brief description.
          */
-        void on_attach(void *, generique_pointer);
+        void on_attach(void *, generique_pointer &);
 
         /** Brief description.
          */
