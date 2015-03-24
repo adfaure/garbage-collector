@@ -16,12 +16,12 @@ class memory_block : public generique_memory_block {
         memory_block(const memory_block<T> &mem) : generique_memory_block(), ptr(mem.ptr) {};
 
         bool operator =(const memory_block<T> &lhs) {
-          return (this->ptr == lhs.ptr);
+            return (this->ptr == lhs.ptr);
         };
 
     virtual void destroy() {
         #ifdef DEBUG
-            std::cout<< "destroy() memory block (derived class)" << std::endl;
+            std::cout<< "destroy() memory block " << ptr << " (derived class)" << std::endl;
         #endif
             delete ptr;
         };

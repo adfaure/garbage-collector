@@ -29,7 +29,7 @@ class garbage_collector {
         template<typename T>
         void on_detach(void *mem, generique_pointer ptr) {
             #ifdef DEBUG
-                std::cout<< "garbage_collector::on_detach()" << std::endl;
+                std::cout<< "garbage_collector::on_detach() sur le block " << mem << std::endl;
             #endif
             if(mem != NULL) {
                 std::map<void *, std::set<generique_pointer> >::iterator ptrs = this->memblocks.find(mem);
@@ -39,21 +39,19 @@ class garbage_collector {
                 #endif
                 } else {
                     this->memblocks.at(mem).erase(ptr);
-                    #ifdef DEBUG
-                    std::cout << "	no pointer on (" << mem << ")... deleting " << std::endl;
-                    #endif
                     if (this->memblocks.at(mem).empty()) {
-                        // sorting block version
-                        memory_block<T> *mem_block = new memory_block<T>(mem);
-                        this->lost_blocks.push_back(mem_block);
-
+                    #ifdef DEBUG
+                        std::cout << "	no pointer on (" << mem << ")... deleting " << std::endl;
+                    #endif
                         // classical version
-                        //this->memblocks.erase(mem);
-                        //delete static_cast<T *>(mem);
-
-
+                        this->memblocks.erase(mem);
+                        delete static_cast<T *>(mem);
                     }
                 }
+            } else {
+            #ifdef DEBUG
+                std::cout << "	NULL " << mem << std::endl;
+            #endif
             }
         }
 
@@ -63,7 +61,7 @@ class garbage_collector {
 
         /** Brief description.
          */
-        static void resetInstance();
+        void resetInstance();
 
     private :
 
@@ -74,11 +72,6 @@ class garbage_collector {
         /** instance of the singleton
          */
         static garbage_collector instance;
-
-        /**
-         *
-         */
-        std::vector<generique_memory_block*> lost_blocks; // TODO is that ok to use pointers? i would rather use references but it does not work
 
         /** Associate memory block to the smartpointers that use the membock
          */

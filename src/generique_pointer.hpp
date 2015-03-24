@@ -12,8 +12,10 @@
 class generique_pointer {
 
     public :
+
         friend class garbage_collector;
 
+        generique_pointer() : id(generique_pointer::inc_compteur()) {};
         /** \brief return egality on generics pointers on their id attribute
          */
         inline bool operator ==(const generique_pointer &rhs) const {
@@ -27,8 +29,10 @@ class generique_pointer {
                 return (this->id < rhs.id);
         };
 
-private :
+        static long inc_compteur();
 
+private :
+        long static long_auto_inc;
         long id; /**< represent TODO */
 };
 
