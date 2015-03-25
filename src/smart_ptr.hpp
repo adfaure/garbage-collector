@@ -11,157 +11,168 @@
 
 /**
  * \brief smartPointer class
- */ 
+ */
 template<typename T>
 class smart_ptr : public generique_pointer {
 
-    public :
+public :
 
-        /**
-         * \brief Constructor
-         *
-        */
-        smart_ptr(T* var_elem = NULL) : generique_pointer(),
-                                        elem(var_elem),
-                                        garbage(garbage_collector::get_instance()) {
-            #ifdef DEBUG
-                std::cout << "smart_ptr(T* elem = NULL)" << std::endl;
-            #endif
+    /**
+     * \brief Constructor
+     *
+    */
+    smart_ptr(T* var_elem = NULL) : generique_pointer(),
+                                    elem(var_elem),
+                                    garbage(garbage_collector::get_instance()) {
+#ifdef DEBUG
+        std::cout << "smart_ptr(T* elem = NULL)" << std::endl;
+#endif
 
-            if(this->elem != NULL) {
-            #ifdef DEBUG
-                std::cout << "	smart_ptr initializing to ("<< var_elem <<") (used on attach)" << std::endl;
-            #endif
-                this->garbage.on_attach((void *) var_elem, *(this));
-            } else {
-            #ifdef DEBUG
-                std::cout << "	smart_ptr initializing to NULL " << std::endl;
-            #endif
-            }
-        };
+        if(this->elem != NULL) {
+#ifdef DEBUG
+            std::cout << "	smart_ptr initializing to ("<< var_elem <<") (used on attach)" << std::endl;
+#endif
+            this->garbage.on_attach((void *) var_elem, *(this));
+        } else {
+#ifdef DEBUG
+            std::cout << "	smart_ptr initializing to NULL " << std::endl;
+#endif
+        }
+    };
 
-        /**
-        * \brief Copy Constructor
-        *
-        */
-        smart_ptr(const smart_ptr & rhs) : generique_pointer(),
-                                           elem(rhs.elem),
-                                           garbage(garbage_collector::get_instance()) // TODO copy semantic ?
-        {
-            #ifdef DEBUG
-                std::cout << "smart_ptr(const smart_ptr &)" << std::endl;
-            #endif
-            if(this->elem != NULL) {
-            #ifdef DEBUG
-                std::cout << "	smart_ptr initializing to ("<< rhs.elem <<") (used on attach)" << std::endl;
-            #endif
-                this->garbage.on_attach((void *) rhs.elem, *(this));
-            } else {
-            #ifdef DEBUG
-                std::cout << "	smart_ptr initializing to NULL " << std::endl;
-            #endif
-            }
-        };
+    /**
+    * \brief Copy Constructor
+    *
+    */
+    smart_ptr(const smart_ptr & rhs) : generique_pointer(),
+                                       elem(rhs.elem),
+                                       garbage(garbage_collector::get_instance()) // TODO copy semantic ?
+    {
+#ifdef DEBUG
+        std::cout << "smart_ptr(const smart_ptr &)" << std::endl;
+#endif
+        if(this->elem != NULL) {
+#ifdef DEBUG
+            std::cout << "	smart_ptr initializing to ("<< rhs.elem <<") (used on attach)" << std::endl;
+#endif
+            this->garbage.on_attach((void *) rhs.elem, *(this));
+        } else {
+#ifdef DEBUG
+            std::cout << "	smart_ptr initializing to NULL " << std::endl;
+#endif
+        }
+    };
 
-        /**
-         * \brief destructor
-         */
-        ~smart_ptr() {
-            #ifdef DEBUG
-                std::cout << "~smart_ptr()" << std::endl;
-            #endif
+    /**
+     * \brief destructor
+     */
+    ~smart_ptr() {
+#ifdef DEBUG
+        std::cout << "~smart_ptr()" << std::endl;
+#endif
+        this->garbage. template on_detach<T>(this->elem, *(this));
+        elem = NULL;
+
+        // search dead memory blocks
+        this->garbage.dead_memoryblocks();
+    };
+
+    /**
+     * \brief overload of operator = in case of acces to element
+     *
+     */
+    smart_ptr<T> &operator =(T *var_elem) {
+#ifdef DEBUG
+        std::cout<< "smart_ptr operator =(elem *) "<< var_elem << std::endl;
+#endif
+
+        if(this->elem != NULL) {
+#ifdef DEBUG
+            std::cout << "      detaching smart_ptr detaching to its previous element" << std::endl;
+#endif
             this->garbage. template on_detach<T>(this->elem, *(this));
-            elem = NULL;
-        };
+        }
 
-        /**
-         * \brief overload of operator = in case of acces to element
-         *
-         */
-        smart_ptr<T> &operator =(T *var_elem) {
-            #ifdef DEBUG
-                std::cout<< "smart_ptr operator =(elem *) "<< var_elem << std::endl;
-            #endif
+        if(var_elem != NULL ) {
+#ifdef DEBUG
+            std::cout << "      smart_ptr attaching to element"<< std::endl;
+#endif
+            this->garbage.on_attach((void *) var_elem , *(this));
+        }
 
-            if(this->elem != NULL) {
-            #ifdef DEBUG
-                std::cout << "      detaching smart_ptr detaching to its previous element" << std::endl;
-            #endif
-                this->garbage. template on_detach<T>(this->elem, *(this));
-            }
+        elem = var_elem;
+        return (*this);
+    };
 
-            if(var_elem != NULL ) {
-            #ifdef DEBUG
-                std::cout << "      smart_ptr attaching to element"<< std::endl;
-            #endif
-                this->garbage.on_attach((void *) var_elem , *(this));
-            }
+    /**
+     * \brief overload operator = in case of affectation to another smart pointers
+     *
+     */
+    smart_ptr<T> &operator =(const smart_ptr<T> &ptr)  {
+#ifdef DEBUG
+        std::cout<< "smart_ptr operator =(const smart_ptr<T> &ptr)" << std::endl;
+#endif
 
-            elem = var_elem;
-            return (*this);
-        };
+        if(this->elem != NULL) {
+#ifdef DEBUG
+            std::cout << " detaching smart_ptr detaching to its previous element" << std::endl;
+#endif
+            this->garbage. template on_detach<T>(this->elem, *(this));
+        }
 
-        /**
-         * \brief overload operator = in case of affectation to another smart pointers
-         *
-         */
-        smart_ptr<T> &operator =(const smart_ptr<T> &ptr)  {
-            #ifdef DEBUG
-                std::cout<< "smart_ptr operator =(const smart_ptr<T> &ptr)" << std::endl;
-            #endif
+        if(ptr.elem != NULL ) {
+#ifdef DEBUG
+            std::cout << "	smart_ptr attaching to element"<< std::endl;
+#endif
 
-            if(this->elem != NULL) {
-            #ifdef DEBUG
-                std::cout << " detaching smart_ptr detaching to its previous element" << std::endl;
-            #endif
-                this->garbage. template on_detach<T>(this->elem, *(this));
-            }
+            this->garbage.on_attach((void *) ptr.elem, *(this));
+        }
 
-            if(ptr.elem != NULL ) {
-            #ifdef DEBUG
-                std::cout << "	smart_ptr attaching to element"<< std::endl;
-            #endif
+        //normal affectation
+        this->elem = ptr.elem;
+        return (*this);
+    };
 
-                this->garbage.on_attach((void *) ptr.elem, *(this));
-            }
+    /**
+     * \brief deferencing element to accès element
+     *
+     */
+    virtual T & operator *() const {
+#ifdef DEBUG
+        std::cout<< "smart_ptr operator*() " << elem << std::endl;
+#endif
+        return (*elem);
+    };
 
-            //normal affectation
-            this->elem = ptr.elem;
-            return (*this);
-        };
+    /** Overload arrow operator to member access
+     */
+    T *operator->() const {
+#ifdef DEBUG
+        std::cout<< "smart_ptr operator->() " << std::endl;
+#endif
+        return elem;
+    };
 
-        /**
-         * \brief deferencing element to accès element
-         *
-         */
-        T &operator *() const {
-            #ifdef DEBUG
-                std::cout<< "smart_ptr operator*() " << elem << std::endl;
-            #endif
-            return (*elem);
-        };
+    /** Egality operator
+     */
+    inline bool operator==(const T* r_member) {
+        return r_member == this->elem;
+    };
 
-        /** Overload arrow operator to member access
-         */
-        T *operator->() const {
-            #ifdef DEBUG
-                std::cout<< "smart_ptr operator->() " << std::endl;
-            #endif
-            return elem;
-        };
+    void * get_addr() const {
+        void * ans = static_cast<void *>(this->elem);
+#ifdef DEBUG
+        std::cout<< "smart_ptr operator*() : " << ans <<  std::endl;
+#endif
+        return ans;
+    }
 
-        /** Egality operator
-         */
-        inline bool operator==(const T* r_member) {
-            return r_member == this->elem;
-        };
+private :
 
-    private :
+    T *elem; /**< pointer on the content of the smartpointer */
 
-        T *elem; /**< pointer on the content of the smartpointer */
-
-        garbage_collector &garbage; /**< the singleton instance of the        */
-                                    /**< garbage collector                    */
+    garbage_collector &garbage; /**< the singleton instance of the        */
+    /**< garbage collector                    */
 };
 
 void* operator new (std::size_t size, int bidon) throw (std::bad_alloc);

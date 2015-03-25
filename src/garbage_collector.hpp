@@ -24,7 +24,7 @@ public :
 
     /** Brief description.
      */
-    void on_attach(void *,generique_pointer &);
+    void on_attach(void *, generique_pointer &);
 
     /** Brief description.
      */
@@ -67,6 +67,14 @@ public :
         }
     }
 
+    /**
+    */
+    std::set<void *> dead_memoryblocks();
+
+    /** return a set of acessible smartpointer
+     */
+    std::set<void *> coloration();
+
     /** Brief description.
      */
     void on_new(void *, std::size_t );
@@ -88,11 +96,15 @@ private :
     /** \brief return null if ptr is not attached to a memory block
     *
     */
-    void* find_inner_object(generique_pointer *);
+    void * find_outer_object_of(const generique_pointer *);
 
     /** Associate memory block to the smartpointers that use the membock
      */
-    std::map<void* , std::set<generique_pointer> > memblocks;
+    std::map<void *, std::set<generique_pointer> > memblocks;
+
+    /** Associate memory block to the smartpointers
+    */
+    std::map<void *, std::set<generique_pointer> > out;
 
     /**
     *

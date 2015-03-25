@@ -6,16 +6,25 @@
 #define POINTEUR(T) smart_ptr<T>
 
 int main() {
+    POINTEUR(test_obj) test = new(0) test_obj;
+    POINTEUR(test_obj) test2 = new(0) test_obj;
+    POINTEUR(test_obj) test3 = new(0) test_obj;
+    POINTEUR(test_obj) test4 = new(0) test_obj;
 
-    test_obj test_t;
-    POINTEUR(test_obj) test = &test_t;
+    test->add_dep(test2);
+    test2->add_dep(test3);
+    test3->add_dep(test4);
+    test4->add_dep(test);
+
+    test = NULL;
+    test2 = NULL;
+    test3 = NULL;
+    test4 = NULL;
 
     std::cout << "-------------------------------" << std::endl;
-
-        test->add_dep();
-        test = NULL;
 
     std::cout << "-------------------------------" << std::endl;
     return 0;
 
 }
+

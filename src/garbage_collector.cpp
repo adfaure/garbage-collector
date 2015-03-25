@@ -1,4 +1,8 @@
+#include <set>
+#include <queue>
 #include "garbage_collector.hpp"
+#include "smart_ptr.hpp"
+#include "testing_object.hpp"
 
 garbage_collector garbage_collector::instance;
 
@@ -6,7 +10,7 @@ garbage_collector &garbage_collector::get_instance() {
     return (instance);
 }
 
-garbage_collector::garbage_collector(): memblocks(),  assoc_size(), stack_pointers() {}
+garbage_collector::garbage_collector(): memblocks(), out(), assoc_size(), stack_pointers() {}
 
 garbage_collector::~garbage_collector() {
 #ifdef DEBUG
@@ -15,7 +19,74 @@ garbage_collector::~garbage_collector() {
     this->garbage_collect();
 }
 
+/**
+ */
+std::set<void *> garbage_collector::dead_memoryblocks() {
 
+#ifdef DEBUG
+    std::cout << "garbage_collector::dead_memoryblocks()" << std::endl;
+#endif
+
+    std::set<void *> colored = this->coloration();
+    std::set<void *> dead_memory_block;
+
+    std::map<void *, std::set<generique_pointer> >::iterator iter;
+    for (iter = this->memblocks.begin(); iter != this->memblocks.end(); ++iter) {
+        void * memblock = iter->first;
+
+        std::set<void *>::const_iterator found = colored.find(memblock);
+        if (found == colored.end()) {
+            dead_memory_block.insert(*found);
+        }
+    }
+    return dead_memory_block;
+}
+
+/** return a set of accessible smartpointer
+ */
+std::set<void *> garbage_collector::coloration() {
+
+#ifdef DEBUG
+    std::cout << "garbage_collector::coloration()" << std::endl;
+#endif
+
+    std::set<void *> colored;
+    std::queue<void *> fifo;
+
+    std::set<generique_pointer>::const_iterator iter;
+    for (iter = this->stack_pointers.begin(); iter != this->stack_pointers.end(); ++iter) {
+
+#ifdef DEBUG
+        std::cout << "    iterate over first level stack accessible generique_pointer, pushing " << iter->get_addr() << std::endl;
+#endif
+
+        // TODO here we must know the exact type, HOW ???
+        fifo.push((iter)->get_addr());
+        //fifo.push(dynamic_cast<smart_ptr<> >iter->get_addr());
+    }
+    while (fifo.size() > 0) {
+        void * p = fifo.front();
+        fifo.pop();
+
+        if (colored.find(p) == colored.end()) {
+            colored.insert(p);
+
+            std::map<void *, std::set<generique_pointer> >::iterator m = this->out.find(p);
+            if (m != this->out.end()) {
+
+                std::set<generique_pointer>::const_iterator iter;
+                for (iter = m->second.begin(); iter != m->second.end(); ++iter) {
+                    fifo.push(iter->get_addr());
+                }
+            }
+
+        }
+    }
+    return colored;
+}
+
+/** return a set of accessibles smartpointer from a specific pointer
+ */
 void garbage_collector::on_attach(void *mem, generique_pointer &ptr) {
 #ifdef DEBUG
     std::cout<< "garbage_collector::on_attach() (" << mem <<")" <<std::endl;
@@ -27,14 +98,18 @@ void garbage_collector::on_attach(void *mem, generique_pointer &ptr) {
 #endif
     } else {
         this->memblocks.at(mem).insert(ptr);
-        void * key = this->find_inner_object(&ptr);
+        void * key = this->find_outer_object_of(&ptr);
         if(key == NULL) {
 #ifdef DEBUG
-            std::cout<< "       find stack pointer to " << mem << std::endl;
+            std::cout<< "       find pointer from stack pointing to " << mem << std::endl;
 #endif
             this->stack_pointers.insert(ptr);
         } else {
-
+            // key vaudra l'adresse du block m?moire auxquel appartient
+#ifdef DEBUG
+            std::cout<< "       add outgoing edge from ( " << key << ") to (" << mem <<")" << std::endl;
+#endif
+            this->out.at(key).insert(ptr);
         }
     }
 }
@@ -53,7 +128,8 @@ void garbage_collector::on_new(void * memblock, std::size_t size)
 #endif
     std::set<generique_pointer> outer_set, inner_set;
 
-    this->memblocks.insert(std::pair<void*, std::set<generique_pointer> >(memblock, outer_set));
+    this->memblocks.insert(std::pair<void*, std::set<generique_pointer> >(memblock, inner_set));
+    this->out.insert(std::pair<void*, std::set<generique_pointer> >(memblock, outer_set));
     this->assoc_size.insert(std::pair<void*, std::size_t >(memblock, size));
 }
 
@@ -63,9 +139,9 @@ void garbage_collector::resetInstance() {
 #endif
 }
 
-void* garbage_collector::find_inner_object(generique_pointer *ptr) {
+void * garbage_collector::find_outer_object_of(const generique_pointer * ptr) {
 #ifdef DEBUG
-    std::cout << "void* garbage_collector::find_inner_object(generique_pointer *ptr) " << std::endl;
+    std::cout << "void* garbage_collector::find_outer_object_of(generique_pointer *ptr) " << std::endl;
 #endif
     for(std::map<void* , std::set<generique_pointer> >::iterator it = this->memblocks.begin(); it != this->memblocks.end(); it++) {
         if(it->first <= ptr && (it->first + this->assoc_size.at(it->first)) >= ptr) {
