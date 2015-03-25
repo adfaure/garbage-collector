@@ -85,14 +85,14 @@ class smart_ptr : public generique_pointer {
 
             if(this->elem != NULL) {
             #ifdef DEBUG
-                std::cout << " detaching smart_ptr detaching to its previous element" << std::endl;
+                std::cout << "      detaching smart_ptr detaching to its previous element" << std::endl;
             #endif
                 this->garbage. template on_detach<T>(this->elem, *(this));
             }
 
             if(var_elem != NULL ) {
             #ifdef DEBUG
-                std::cout << "	smart_ptr attaching to element"<< std::endl;
+                std::cout << "      smart_ptr attaching to element"<< std::endl;
             #endif
                 this->garbage.on_attach((void *) var_elem , *(this));
             }

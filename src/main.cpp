@@ -7,12 +7,13 @@
 
 int main() {
 
-    POINTEUR(test_obj) test = new(1) test_obj();
-    POINTEUR(test_obj) test2 = new(1) test_obj();
+    test_obj test_t;
+    POINTEUR(test_obj) test = &test_t;
 
     std::cout << "-------------------------------" << std::endl;
 
-        test->add_dep(test2);
+        test->add_dep();
+        test = NULL;
 
     std::cout << "-------------------------------" << std::endl;
     return 0;

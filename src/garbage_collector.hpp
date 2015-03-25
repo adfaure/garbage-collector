@@ -15,92 +15,102 @@
  * \brief This class represent our garbage collector
  */
 class garbage_collector {
-    
-    public :
 
-        /** Get an instance of the singleton
-         */
-        static garbage_collector& get_instance();
+public :
 
-        /** Brief description.
-         */
-        void on_attach(void *, generique_pointer &);
+    /** Get an instance of the singleton
+     */
+    static garbage_collector& get_instance();
 
-        /** Brief description.
-         */
-        template<typename T>
-        void on_detach(void *mem, generique_pointer ptr) {
-            #ifdef DEBUG
-                std::cout<< "garbage_collector::on_detach() sur le block " << mem << std::endl;
-            #endif
-            if(mem != NULL) {
-                std::map<void *, std::set<generique_pointer> >::iterator ptrs = this->memblocks.find(mem);
-                if (ptrs == this->memblocks.end()) {
-                #ifdef DEBUG
-                    std::cout << "	no entry for " << mem << std::endl;
-                #endif
-                } else {
-                    this->memblocks.at(mem).erase(ptr);
-                    if (this->memblocks.at(mem).empty()) {
-                    #ifdef DEBUG
-                        std::cout << "	no pointer on (" << mem << ")... deleting " << std::endl;
-                    #endif
-                        // classical version
-                        this->memblocks.erase(mem);
-                        delete static_cast<T *>(mem);
-                    }
-                }
-            } else {
-            #ifdef DEBUG
-                std::cout << "	NULL " << mem << std::endl;
-            #endif
-            }
+    /** Brief description.
+     */
+    void on_attach(void *,generique_pointer &);
+
+    /** Brief description.
+     */
+    template<typename T>
+    void on_detach(void *mem, generique_pointer &ptr) {
+#ifdef DEBUG
+        std::cout<< "garbage_collector::on_detach() sur le block " << mem << std::endl;
+#endif
+
+        std::set<generique_pointer>::iterator stack_ptr = this->stack_pointers.find(ptr);
+        if(stack_ptr != this->stack_pointers.end()) {
+#ifdef DEBUG
+            std::cout<< "       stack pointer on (" << mem <<") removed from stack_set "<< std::endl;
+#endif
+            this->stack_pointers.erase(ptr);
         }
 
-        /** Brief description.
-         */
-        void on_new(void *, std::size_t );
+        if(mem != NULL) {
+            std::map<void *, std::set<generique_pointer> >::iterator ptrs = this->memblocks.find(mem);
+            if (ptrs == this->memblocks.end()) {
+#ifdef DEBUG
+                std::cout << "	no entry for : " << mem << std::endl;
+#endif
+            } else {
+                this->memblocks.at(mem).erase(ptr);
+                if (this->memblocks.at(mem).empty()) {
+#ifdef DEBUG
+                    std::cout << "	no pointer on (" << mem << ")... deleting " << std::endl;
+#endif
+                    this->memblocks.erase(mem);
+                    this->assoc_size.erase(mem);
 
-        /** Brief description.
-         */
-        void resetInstance();
+                    delete static_cast<T *>(mem);
+                }
+            }
+        } else {
+#ifdef DEBUG
+            std::cout << "	NULL " << mem << std::endl;
+#endif
+        }
+    }
 
-    private :
+    /** Brief description.
+     */
+    void on_new(void *, std::size_t );
 
-        /** Brief description.
-         */
-        void garbage_collect();
+    /** Brief description.
+     */
+    void resetInstance();
 
-        /** instance of the singleton
-         */
-        static garbage_collector instance;
+private :
 
-        /** \brief return null if ptr is not attached to a memory block
-        *
-        */
-        void* find_inner_object(generique_pointer *);
+    /** Brief description.
+     */
+    void garbage_collect();
 
-        /** Associate memory block to the smartpointers that use the membock
-         */
-        std::map<void* , std::set<generique_pointer> > memblocks;
+    /** instance of the singleton
+     */
+    static garbage_collector instance;
 
-        /**
-         *
-         */
-        std::map<void* , std::set<generique_pointer> > inner_smart_pointer;
+    /** \brief return null if ptr is not attached to a memory block
+    *
+    */
+    void* find_inner_object(generique_pointer *);
 
-        /**
-        *
-        */
-        std::map<void* , std::size_t > assoc_size;
+    /** Associate memory block to the smartpointers that use the membock
+     */
+    std::map<void* , std::set<generique_pointer> > memblocks;
 
-        /** Private constructor to ensure the singleton pattern
-         */
-        garbage_collector();
-        
-        /** Destructor
-         */
-        ~garbage_collector();
+    /**
+    *
+    */
+    std::map<void* , std::size_t > assoc_size;
+
+    /**
+    *
+    */
+    std::set<generique_pointer> stack_pointers;
+
+    /** Private constructor to ensure the singleton pattern
+     */
+    garbage_collector();
+
+    /** Destructor
+     */
+    ~garbage_collector();
 };
 
 #endif
