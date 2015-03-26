@@ -12,6 +12,12 @@ int main() {
     test->add_dep(test2);
     test2->add_dep(test);
 
+    POINTEUR(test_obj) test_  = new(0) test_obj;
+    POINTEUR(test_obj) test2_ = new(0) test_obj;
+
+    test_->add_dep(test2_);
+    test2_->add_dep(test_);
+
     std::cout << "-------------------------------" << std::endl;
 
     return 0;

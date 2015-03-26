@@ -1,16 +1,87 @@
 #include <set>
 #include <queue>
+#include <stack>
+#include <string.h>
+#include <strings.h>
 #include "garbage_collector.hpp"
-#include "smart_ptr.hpp"
-#include "testing_object.hpp"
+
+#define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
 
 garbage_collector garbage_collector::instance;
+
+garbage_collector::garbage_collector() : memblocks(), out(), assoc_size(), stack_pointers() {}
 
 garbage_collector &garbage_collector::get_instance() {
     return (instance);
 }
 
-garbage_collector::garbage_collector(): memblocks(), out(), assoc_size(), stack_pointers() {}
+std::set<void*> garbage_collector::get_children(void *key) {
+    std::set<void*> result;
+    if(this->out.find(key) == this->out.end()) {
+        return  result;
+    }
+    for(std::set<generique_pointer*>::iterator it = this->out.at(key).begin(); it != this->out.at(key).end(); it++) {
+        result.insert((*it)->get_addr());
+    }
+    return result;
+}
+
+void garbage_collector::TarjanAlgorithm() {
+#ifdef DEBUG
+    std::cout << "void garbage_collector::TarjanAlgorithm()" << std::endl;
+#endif
+    unsigned int compteur = 0;
+    std::map<void *, std::pair<unsigned int,unsigned int> > colored;
+    std::stack<void *> filo, last_parcour;
+
+    for(std::map<void *, std::set<generique_pointer*> >::iterator node = this->memblocks.begin(); node != this->memblocks.end(); node++) {
+        if(colored.find(node->first) == colored.end()) {
+            filo.push(node->first);
+            while(!filo.empty()) {
+                void * current_node = filo.top(); filo.pop();
+                last_parcour.push(current_node);
+
+                std::pair<unsigned int, unsigned int> index(compteur, compteur); compteur++;
+                std::set<void *> children = this->get_children(current_node);
+
+                for(std::set<void *>::iterator child = children.begin(); child != children.end(); child++) {
+                    std::map<void *, std::pair<unsigned int,unsigned int> >::iterator node_children = colored.find(*child);
+                    if(node_children == colored.end()) {
+                        filo.push(*child);
+                    } else {
+                        std::pair<unsigned int, unsigned int> child_index = node_children->second;
+                        index.second = MIN(child_index.first, index.first);
+                     }
+                }
+
+                std::pair<void *, std::pair<unsigned int, unsigned int> > node(current_node, index);
+                colored.insert(std::pair<void *, std::pair<unsigned int, unsigned int> >(current_node, index));
+            }
+#ifdef DEBUG
+            std::cout << "      -----------------------------------------------------------------" << std::endl;
+#endif
+            while(!last_parcour.empty()) {
+
+                void * current_node = last_parcour.top(); last_parcour.pop();
+                std::pair<unsigned int, unsigned int> index = colored.at(current_node);
+
+                std::set<void *> children = this->get_children(current_node);
+                for(std::set<void *>::iterator child = children.begin(); child != children.end(); child++) {
+                    std::map<void *, std::pair<unsigned int,unsigned int> >::iterator node_children = colored.find(*child);
+                    if(node_children == colored.end()) {
+                        filo.push(*child);
+                    } else {
+                        std::pair<unsigned int, unsigned int> child_index = node_children->second;
+                        index.second = MIN(child_index.first, index.first);
+                    }
+                }
+            }
+        }
+    }
+    for(std::map<void *, std::pair<unsigned int,unsigned int> >::iterator it = colored.begin(); it != colored.end(); it++) {
+        std::cout<< it->first << "  " << it->second.first << " " << it->second.second << " ";
+    }
+}
 
 garbage_collector::~garbage_collector() {
 #ifdef DEBUG
@@ -129,23 +200,9 @@ void garbage_collector::garbage_collect()
 {
 #ifdef DEBUG
     std::cout<< "garbage_collector::garbage_collect()" << std::endl;
+    std::cout<< "       ther is " << this->memblocks.size() << " element in the gc " << std::endl;
 #endif
-    std::set<void *> dead = this->dead_memoryblocks();
-    for(std::set<void *>::iterator it = dead.begin(); it != dead.end(); it++) {
-#ifdef DEBUG
-        std::cout<< "       block " <<*it << " is dead, finding it over the map " << std::endl;
-#endif
-        std::map<void*, std::set<generique_pointer*> >::iterator outer_ptrs = this->memblocks.find(*it);
-        if(outer_ptrs != this->memblocks.end()) {
-            for(std::set<generique_pointer*>::iterator it2 = outer_ptrs->second.begin(); it2 != outer_ptrs->second.end(); it2++) {
-                (*it2)->force_detach();
-            }
-        } else {
-#ifdef DEBUG
-            std::cout<< "       block " <<*it << " not present in garbage collector it must be an error... " << std::endl;
-#endif
-        }
-    }
+    this->TarjanAlgorithm();
 }
 
 void garbage_collector::on_new(void * memblock, std::size_t size)

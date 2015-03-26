@@ -86,6 +86,17 @@ public :
 
 private :
 
+    /**
+    *
+    */
+    void TarjanAlgorithm();
+
+    /*
+    *
+    *
+    */
+    std::set<void*> get_children(void *key);
+
     /** Brief description.
      */
     void garbage_collect();

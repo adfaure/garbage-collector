@@ -76,7 +76,7 @@ public :
         }
 
         // search dead memory blocks
-        std::cout << "find : " << this->garbage.dead_memoryblocks().size() << " blocks innacessibles " <<std::endl;
+       // std::cout << "find : " << this->garbage.dead_memoryblocks().size() << " blocks innacessibles " <<std::endl;
     };
 
     /**
