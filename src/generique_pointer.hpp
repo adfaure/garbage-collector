@@ -19,6 +19,8 @@ class generique_pointer {
 
         virtual ~generique_pointer() {};
 
+        virtual void force_detach() = 0;
+
         /** \brief return egality on generics pointers on their id attribute
          */
         inline bool operator ==(const generique_pointer &rhs) const {

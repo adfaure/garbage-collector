@@ -34,27 +34,28 @@ public :
         std::cout<< "garbage_collector::on_detach() sur le block " << mem << std::endl;
 #endif
 
-        std::set<generique_pointer>::iterator stack_ptr = this->stack_pointers.find(ptr);
+        std::set<generique_pointer*>::iterator stack_ptr = this->stack_pointers.find(&ptr);
         if(stack_ptr != this->stack_pointers.end()) {
 #ifdef DEBUG
             std::cout<< "       stack pointer on (" << mem <<") removed from stack_set "<< std::endl;
 #endif
-            this->stack_pointers.erase(ptr);
+            this->stack_pointers.erase(&ptr);
         }
 
         if(mem != NULL) {
-            std::map<void *, std::set<generique_pointer> >::iterator ptrs = this->memblocks.find(mem);
+            std::map<void *, std::set<generique_pointer*> >::iterator ptrs = this->memblocks.find(mem);
             if (ptrs == this->memblocks.end()) {
 #ifdef DEBUG
                 std::cout << "	no entry for : " << mem << std::endl;
 #endif
             } else {
-                this->memblocks.at(mem).erase(ptr);
+                this->memblocks.at(mem).erase(&ptr);
                 if (this->memblocks.at(mem).empty()) {
 #ifdef DEBUG
                     std::cout << "	no pointer on (" << mem << ")... deleting " << std::endl;
 #endif
                     this->memblocks.erase(mem);
+                    this->out.erase(mem);
                     this->assoc_size.erase(mem);
 
                     delete static_cast<T *>(mem);
@@ -100,11 +101,11 @@ private :
 
     /** Associate memory block to the smartpointers that use the membock
      */
-    std::map<void *, std::set<generique_pointer> > memblocks;
+    std::map<void *, std::set<generique_pointer*> > memblocks;
 
     /** Associate memory block to the smartpointers
     */
-    std::map<void *, std::set<generique_pointer> > out;
+    std::map<void *, std::set<generique_pointer*> > out;
 
     /**
     *
@@ -114,7 +115,7 @@ private :
     /**
     *
     */
-    std::set<generique_pointer> stack_pointers;
+    std::set<generique_pointer*> stack_pointers;
 
     /** Private constructor to ensure the singleton pattern
      */

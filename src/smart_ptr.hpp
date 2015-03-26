@@ -70,11 +70,13 @@ public :
 #ifdef DEBUG
         std::cout << "~smart_ptr()" << std::endl;
 #endif
-        this->garbage. template on_detach<T>(this->elem, *(this));
-        elem = NULL;
+        if(elem != NULL) {
+            this->garbage. template on_detach<T>(this->elem, *(this));
+            elem = NULL;
+        }
 
         // search dead memory blocks
-        this->garbage.dead_memoryblocks();
+        std::cout << "find : " << this->garbage.dead_memoryblocks().size() << " blocks innacessibles " <<std::endl;
     };
 
     /**
@@ -103,6 +105,7 @@ public :
         elem = var_elem;
         return (*this);
     };
+
 
     /**
      * \brief overload operator = in case of affectation to another smart pointers
@@ -162,10 +165,20 @@ public :
     void * get_addr() const {
         void * ans = static_cast<void *>(this->elem);
 #ifdef DEBUG
-        std::cout<< "smart_ptr operator*() : " << ans <<  std::endl;
+        std::cout<< " void * smart_ptr::get_addr() const : " << ans <<  std::endl;
 #endif
         return ans;
     }
+
+    virtual void force_detach()  {
+        if(this->elem != NULL) {
+#ifdef DEBUG
+            std::cout << " detaching smart_ptr detaching to its previous element" << std::endl;
+#endif
+            this->garbage. template on_detach<T>(this->elem, *(this));
+            this->elem = NULL;
+        }
+    };
 
 private :
 
