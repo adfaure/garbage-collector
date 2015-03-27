@@ -63,8 +63,11 @@ public :
                 #endif
             } else
             {
+#ifdef DEBUG
+                std::cout << "	there is " << this->memblocks.at(mem).size() <<" on "<< mem << std::endl;
+#endif
                 this->memblocks.at(mem).erase(&ptr);
-                if (this->memblocks.at(mem).empty()) 
+                if (this->memblocks.at(mem).empty())
                 {
                     #ifdef DEBUG
                         std::cout << "	no pointer on (" << mem << ")... deleting " << std::endl;

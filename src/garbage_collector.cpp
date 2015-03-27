@@ -81,11 +81,11 @@ void garbage_collector::TarjanAlgorithm()
         //std::cout << "this->memblocks.at(*it2) NULL?" << this->memblocks.at(*it2) != NULL << "\n";
         std::map<void*, std::set<generique_pointer*> >::iterator map_acces = this->memblocks.find(*it2);
         if(map_acces != this->memblocks.end()) {
-            for (std::set<generique_pointer *>::iterator it3 = this->memblocks.at(*it2).begin(); it3 != this->memblocks.at(*it2).end(); ++it3)
+            std::set<generique_pointer *> &ptrs = this->memblocks.at(*it2);
+            for (std::set<generique_pointer *>::iterator it3 = ptrs.begin(); it3 != ptrs.end(); ++it3)
             {
-                std::cout << "*it2zaeaezae" << std::endl;
-                (*it3)->force_detach();    
-            }   
+                (*it3)->force_detach();
+            }
         }
     }
 }

@@ -79,6 +79,9 @@ public :
             std::cout << "~smart_ptr()" << std::endl;
         #endif
 
+#ifdef DEBUG
+            std::cout << "      detaching to " << elem << std::endl;
+#endif
         if(this->elem != NULL)
         {
             T* temp = elem;
@@ -189,17 +192,15 @@ public :
         #ifdef DEBUG
             std::cout << "virtual void force_detach()" << std::endl;
         #endif
+
         if(this->elem != NULL)
         {
             #ifdef DEBUG
                 std::cout << " detaching smart_ptr detaching to its previous element" << std::endl;
             #endif
             T* temp = elem;
-            this->elem = NULL;
+
             this->garbage. template on_detach<T>(temp, *(this));
-            #ifdef DEBUG
-                std::cout << " dyaaaaaaaaaaaaataaaaaaaaaaa" << std::endl;
-            #endif
         }
     };
 
