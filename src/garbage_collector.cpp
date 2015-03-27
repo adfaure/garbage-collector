@@ -54,43 +54,46 @@ void garbage_collector::TarjanAlgorithm()
     unsigned int index = 0;
     
     std::stack<void *> s;
-    std::vector<std::set<void *> > scc;
+    std::vector<void *> scc;
     std::map<void *, tarjan_info> indexM;
     
     for ( std::map<void *, std::set<generique_pointer *> >::const_iterator iter = this->memblocks.begin(); iter != this->memblocks.end(); ++iter )
     {
         if (indexM.find(iter->first) == indexM.end())
         {
-            std::vector<std::set<void *> >  temp = this->strongconnect(iter->first,index ,indexM, s);
+            std::vector<void *>  temp = this->strongconnect(iter->first,index ,indexM, s);
             scc.insert(scc.end(), temp.begin(), temp.end());
         }
     }
     
     // iter over scc
-    for ( std::vector<std::set<void *> >::iterator it = scc.begin(); it != scc.end(); ++it ) 
+    for ( std::vector<void *>::iterator it = scc.begin(); it != scc.end(); it++ )
     {
         #ifdef DEBUG
             std::cout<< "-----------------------------scc-----------------------------" << std::endl;
         #endif
-        // it est un set<void*>fi=
-        std::set<void *>::iterator it2 = it->begin();
-        ++it2;
-        
-        std::cout << "*it2: " << *it2 << std::endl;
-        
-        //std::cout << "this->memblocks.at(*it2) NULL?" << this->memblocks.at(*it2) != NULL << "\n";
-        std::map<void*, std::set<generique_pointer*> >::iterator map_acces = this->memblocks.find(*it2);
+        std::cout << "*it : " << *it << std::endl;
+        std::map<void*, std::set<generique_pointer*> >::iterator map_acces = this->memblocks.find(*it);
         if(map_acces != this->memblocks.end()) {
-            std::set<generique_pointer *> &ptrs = this->memblocks.at(*it2);
-            for (std::set<generique_pointer *>::iterator it3 = ptrs.begin(); it3 != ptrs.end(); ++it3)
+            std::set<generique_pointer *> ptrs = this->memblocks.at(*it);
+            for (std::set<generique_pointer *>::iterator it3 = ptrs.begin(); it3 != ptrs.end(); it3++)
             {
-                (*it3)->force_detach();
+                if((*it3)->isPtrValide()) {
+                    (*it3)->force_detach();
+                }
             }
+        } else {
+#ifdef DEBUG
+            std::cout<< "       block " << *it << " is not in the gc" << std::endl;
+#endif
         }
     }
+#ifdef DEBUG
+    std::cout<< "-----------------------------end-----------------------------" << std::endl;
+#endif
 }
 
-std::vector<std::set<void *> > garbage_collector::strongconnect(void * v, unsigned int &index, std::map<void *, tarjan_info> &parcours_info, std::stack<void*> &stack)
+std::vector<void *> garbage_collector::strongconnect(void * v, unsigned int &index, std::map<void *, tarjan_info> &parcours_info, std::stack<void*> &stack)
 {
 
     // Set the depth index for v to the smallest unused index
@@ -115,21 +118,17 @@ std::vector<std::set<void *> > garbage_collector::strongconnect(void * v, unsign
         }
     }
 
-    std::vector<std::set<void *> > scc;
+    std::vector<void *> scc;
     if (node_info.index == node_info.lowlink) 
     {
-        // start a new strongly connected component
-        std::set<void *> temp; 
-        scc.push_back(temp);
-        
+        scc.push_back(stack.top());
         void *current_node;
         do 
         {
             current_node = stack.top(); stack.pop();
             parcours_info.at(current_node).onStack = false;
             //add w to current strongly connected component
-            scc[scc.size() - 1].insert(current_node);
-            
+
         } while(v != current_node);
     }
     return scc;
@@ -267,7 +266,7 @@ void garbage_collector::garbage_collect()
 {
     #ifdef DEBUG
         std::cout<< "garbage_collector::garbage_collect()" << std::endl;
-        std::cout<< "       ther is " << this->memblocks.size() << " element in the gc " << std::endl;
+        std::cout<< "       there is " << this->memblocks.size() << " element in the gc " << std::endl;
     #endif
     this->TarjanAlgorithm();
 }

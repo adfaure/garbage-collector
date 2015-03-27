@@ -64,9 +64,10 @@ public :
             } else
             {
 #ifdef DEBUG
-                std::cout << "	there is " << this->memblocks.at(mem).size() <<" on "<< mem << std::endl;
+                std::cout << "	there is " << this->memblocks.at(mem).size() <<" pointer on "<< mem << std::endl;
 #endif
                 this->memblocks.at(mem).erase(&ptr);
+
                 if (this->memblocks.at(mem).empty())
                 {
                     #ifdef DEBUG
@@ -109,7 +110,7 @@ private :
     *
     */
     void TarjanAlgorithm();
-    std::vector<std::set<void *> >  strongconnect(void * v, unsigned int &index, std::map<void *, tarjan_info> &parcours_info, std::stack<void*> &stack);
+    std::vector<void *>  strongconnect(void * v, unsigned int &index, std::map<void *, tarjan_info> &parcours_info, std::stack<void*> &stack);
 
     /*
     *

@@ -76,17 +76,17 @@ public :
     ~smart_ptr()
     {
         #ifdef DEBUG
-            std::cout << "~smart_ptr()" << std::endl;
+            std::cout << "~smart_ptr() addr :  " << this << std::endl;
         #endif
-
+        if(isPtrValide()) {
+            if (this->elem != NULL) {
 #ifdef DEBUG
-            std::cout << "      detaching to " << elem << std::endl;
+                std::cout << "     detaching to " << elem << std::endl;
 #endif
-        if(this->elem != NULL)
-        {
-            T* temp = elem;
-            this->elem = NULL;
-            this->garbage. template on_detach<T>(temp, *(this));
+                this->isValide  = false;
+                this->garbage.template on_detach<T>(elem, *(this));
+                this->elem = NULL;
+            }
         }
     };
 
@@ -104,6 +104,7 @@ public :
             #ifdef DEBUG
                 std::cout << "      detaching smart_ptr detaching to its previous element" << std::endl;
             #endif
+            this->isValide  = false;
             this->garbage. template on_detach<T>(this->elem, *(this));
         }
 
@@ -112,6 +113,7 @@ public :
             #ifdef DEBUG
                 std::cout << "      smart_ptr attaching to element"<< std::endl;
             #endif
+            this->isValide  = true;
             this->garbage.on_attach((void *) var_elem , *(this));
         }
 
@@ -134,6 +136,7 @@ public :
             #ifdef DEBUG
                 std::cout << " detaching smart_ptr detaching to its previous element" << std::endl;
             #endif
+            this->isValide  = false;
             this->garbage. template on_detach<T>(this->elem, *(this));
         }
 
@@ -142,6 +145,7 @@ public :
             #ifdef DEBUG
                 std::cout << "	smart_ptr attaching to element"<< std::endl;
             #endif
+            this->isValide  = true;
             this->garbage.on_attach((void *) ptr.elem, *(this));
         }
 
@@ -190,7 +194,7 @@ public :
     virtual void force_detach()  
     {
         #ifdef DEBUG
-            std::cout << "virtual void force_detach()" << std::endl;
+            std::cout << "virtual void force_detach() on " << this << std::endl;
         #endif
 
         if(this->elem != NULL)
@@ -198,9 +202,8 @@ public :
             #ifdef DEBUG
                 std::cout << " detaching smart_ptr detaching to its previous element" << std::endl;
             #endif
-            T* temp = elem;
-
-            this->garbage. template on_detach<T>(temp, *(this));
+            this->isValide  = false;
+            this->garbage. template on_detach<T>(elem, *(this));
         }
     };
 

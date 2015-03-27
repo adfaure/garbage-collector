@@ -8,18 +8,8 @@
 int main() {
     POINTEUR(test_obj) test  = new(0) test_obj;
     POINTEUR(test_obj) test2 = new(0) test_obj;
-    POINTEUR(test_obj) test3 = new(0) test_obj;
-    
     test->add_dep(test2);
-    test2->add_dep(test3);
-    test3->add_dep(test);
-
-    POINTEUR(test_obj) test_  = new(0) test_obj;
-    POINTEUR(test_obj) test2_ = new(0) test_obj;
-
-    test_->add_dep(test2_);
-    test2_->add_dep(test_);
-
+    test2->add_dep(test);
     std::cout << "-------------------------------" << std::endl;
 
     return 0;
