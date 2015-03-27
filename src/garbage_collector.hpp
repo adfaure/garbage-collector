@@ -6,10 +6,19 @@
 #include <iostream>
 #include <map>
 #include <set>
+#include <stack>
 #include <vector>
 #include <bits/stl_bvector.h>
 
 #include <cstdlib> // for malloc() and free()
+
+typedef struct S_tarjan_info {
+    unsigned int index, lowlink;
+    bool onStack;
+} tarjan_info;
+
+void init_tarja_info(tarjan_info & info, unsigned int index, unsigned int lowlink, bool onstack);
+
 
 /**
  * \brief This class represent our garbage collector
@@ -29,31 +38,37 @@ public :
     /** Brief description.
      */
     template<typename T>
-    void on_detach(void *mem, generique_pointer &ptr) {
-#ifdef DEBUG
-        std::cout<< "garbage_collector::on_detach() sur le block " << mem << std::endl;
-#endif
+    void on_detach(void *mem, generique_pointer &ptr)
+    {
+        #ifdef DEBUG
+            std::cout<< "garbage_collector::on_detach() sur le block " << mem << std::endl;
+        #endif
 
         std::set<generique_pointer*>::iterator stack_ptr = this->stack_pointers.find(&ptr);
-        if(stack_ptr != this->stack_pointers.end()) {
-#ifdef DEBUG
-            std::cout<< "       stack pointer on (" << mem <<") removed from stack_set "<< std::endl;
-#endif
+        if(stack_ptr != this->stack_pointers.end()) 
+        {
+            #ifdef DEBUG
+                std::cout<< "       stack pointer on (" << mem <<") removed from stack_set "<< std::endl;
+            #endif
             this->stack_pointers.erase(&ptr);
         }
 
-        if(mem != NULL) {
+        if(mem != NULL) 
+        {
             std::map<void *, std::set<generique_pointer*> >::iterator ptrs = this->memblocks.find(mem);
-            if (ptrs == this->memblocks.end()) {
-#ifdef DEBUG
-                std::cout << "	no entry for : " << mem << std::endl;
-#endif
-            } else {
+            if (ptrs == this->memblocks.end())
+            {
+                #ifdef DEBUG
+                    std::cout << "	no entry for : " << mem << std::endl;
+                #endif
+            } else
+            {
                 this->memblocks.at(mem).erase(&ptr);
-                if (this->memblocks.at(mem).empty()) {
-#ifdef DEBUG
-                    std::cout << "	no pointer on (" << mem << ")... deleting " << std::endl;
-#endif
+                if (this->memblocks.at(mem).empty()) 
+                {
+                    #ifdef DEBUG
+                        std::cout << "	no pointer on (" << mem << ")... deleting " << std::endl;
+                    #endif
                     this->memblocks.erase(mem);
                     this->out.erase(mem);
                     this->assoc_size.erase(mem);
@@ -61,10 +76,11 @@ public :
                     delete static_cast<T *>(mem);
                 }
             }
-        } else {
-#ifdef DEBUG
-            std::cout << "	NULL " << mem << std::endl;
-#endif
+        } else 
+        {
+            #ifdef DEBUG
+                std::cout << "	NULL " << mem << std::endl;
+            #endif
         }
     }
 
@@ -90,6 +106,7 @@ private :
     *
     */
     void TarjanAlgorithm();
+    std::vector<std::set<void *> >  strongconnect(void * v, unsigned int &index, std::map<void *, tarjan_info> &parcours_info, std::stack<void*> &stack);
 
     /*
     *
@@ -136,5 +153,6 @@ private :
      */
     ~garbage_collector();
 };
+
 
 #endif
