@@ -1,16 +1,42 @@
-#include <iostream>
-#include "garbage_collector.hpp"
+#include<iostream>
 #include "smart_ptr.hpp"
-#include "testing_object.hpp"
 
 #define POINTEUR(T) smart_ptr<T>
 
-int main() {
-    POINTEUR(test_obj) test  = new(0) test_obj;
-    POINTEUR(test_obj) test2 = new(0) test_obj;
-    test->add_dep(test2);
-    test2->add_dep(test);
-    std::cout << "-------------------------------" << std::endl;
+struct CC;
+struct CC
+{
+    // possiblement plusieurs champs
+    // dont un champ de type pointeur :
+    POINTEUR(CC) p;
+    CC() : p(0){}
+};
 
+int main()
+{
+    {
+        POINTEUR(int) pp;
+        {
+            POINTEUR(int) p = new(1) int; // ou bien new(1) int pour une surcharge dédiée du new
+            pp = p;
+            *pp=3;
+        }
+        std::cout << *pp << std::endl;
+        //delete pp;
+        pp=new(1) int;                      // ou bien new(1) int
+        *pp=4;
+        std::cout << *pp << std::endl;
+        //delete pp;
+    }
+
+    POINTEUR(CC) ppile = new(1) CC; // ou bien new(1) CC
+    ppile->p=new(1) CC;                        // ou bien new(1) CC
+    ppile->p->p=ppile;
+    std::cout << ppile << std::endl;
+    //delete ppile->p;
+    //delete ppile;
+    ppile=new(1) CC;                             // ou bien new(1) CC
+    std::cout << ppile << std::endl;
+    //delete ppile;
     return 0;
 }

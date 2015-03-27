@@ -207,6 +207,11 @@ public :
         }
     };
 
+    friend std::ostream& operator<<(std::ostream &os, const smart_ptr<T> &ptr) {
+        os << ptr.elem ;
+        return os;
+    };
+
 private :
 
     T *elem; /**< pointer on the content of the smartpointer */
