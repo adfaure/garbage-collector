@@ -78,6 +78,12 @@ public :
                     this->assoc_size.erase(mem);
 
                     delete static_cast<T *>(mem);
+                    // TODO : the three codes lines below can replace the delete and avoid mismatch operator warning in valgrind
+                    /*
+                    T *elem_cast = static_cast<T *>(mem);
+                    elem_cast->~T();
+                    free(mem);
+                    */
                 }
             }
         } else 
@@ -158,5 +164,6 @@ private :
     ~garbage_collector();
 };
 
+void* operator new (std::size_t size, int bidon) throw (std::bad_alloc);
 
 #endif

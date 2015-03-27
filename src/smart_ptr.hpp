@@ -219,6 +219,5 @@ private :
     garbage_collector &garbage; /**< the singleton instance of the GC */
 };
 
-void* operator new (std::size_t size, int bidon) throw (std::bad_alloc);
 
 #endif 
