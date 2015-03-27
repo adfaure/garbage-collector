@@ -42,7 +42,7 @@ class generique_pointer {
 
         bool isPtrValide() {
 #ifdef DEBUG
-            std::cout << "bool isvalide() " << isValide << std::endl;
+            std::cerr << "bool isvalide() " << isValide << std::endl;
 #endif
             return isValide;
         }

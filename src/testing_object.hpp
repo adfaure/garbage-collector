@@ -11,27 +11,27 @@ class test_obj {
     public :
         test_obj() : test(9), test_tas(NULL) {
             #ifdef DEBUG
-                std::cout << "test_obj::test_obj()" << std::endl;
+                std::cerr << "test_obj::test_obj()" << std::endl;
             #endif
         }
 
     void add_dep() {
         #ifdef DEBUG
-            std::cout << "test_obj::test_obj()" << std::endl;
+            std::cerr << "test_obj::test_obj()" << std::endl;
         #endif
         this->test_tas = new(2) test_obj();
     }
 
     void add_dep(smart_ptr<test_obj> t) {
     #ifdef DEBUG
-        std::cout << "test_obj::test_obj()" << std::endl;
+        std::cerr << "test_obj::test_obj()" << std::endl;
     #endif
         this->test_tas = t;
     }
 
     ~test_obj() {
             #ifdef DEBUG
-                std::cout << "test_obj::~test_obj()" << std::endl;
+                std::cerr << "test_obj::~test_obj()" << std::endl;
             #endif
             test_tas = NULL;
         }

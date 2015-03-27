@@ -25,18 +25,18 @@ public :
                                     garbage(garbage_collector::get_instance()) 
     {
         #ifdef DEBUG
-                std::cout << "smart_ptr(T* elem = NULL)" << std::endl;
+                std::cerr << "smart_ptr(T* elem = NULL)" << std::endl;
         #endif
 
         if(this->elem != NULL) {
             #ifdef DEBUG
-                std::cout << "	smart_ptr initializing to ("<< var_elem <<") (used on attach)" << std::endl;
+                std::cerr << "	smart_ptr initializing to ("<< var_elem <<") (used on attach)" << std::endl;
             #endif
             this->garbage.on_attach((void *) var_elem, *(this));
         } else
         {
             #ifdef DEBUG
-                std::cout << "	smart_ptr initializing to NULL " << std::endl;
+                std::cerr << "	smart_ptr initializing to NULL " << std::endl;
             #endif
         }
     };
@@ -53,19 +53,19 @@ public :
                                        garbage(garbage_collector::get_instance())
     {
         #ifdef DEBUG
-            std::cout << "smart_ptr(const smart_ptr &)" << std::endl;
+            std::cerr << "smart_ptr(const smart_ptr &)" << std::endl;
         #endif
 
         if(this->elem != NULL)
         {
             #ifdef DEBUG
-                std::cout << "	smart_ptr initializing to ("<< rhs.elem <<") (used on attach)" << std::endl;
+                std::cerr << "	smart_ptr initializing to ("<< rhs.elem <<") (used on attach)" << std::endl;
             #endif
             this->garbage.on_attach((void *) rhs.elem, *(this));
         } else
         {
             #ifdef DEBUG
-                std::cout << "	smart_ptr initializing to NULL " << std::endl;
+                std::cerr << "	smart_ptr initializing to NULL " << std::endl;
             #endif
         }
     };
@@ -76,12 +76,12 @@ public :
     ~smart_ptr()
     {
         #ifdef DEBUG
-            std::cout << "~smart_ptr() addr :  " << this << std::endl;
+            std::cerr << "~smart_ptr() addr :  " << this << std::endl;
         #endif
         if(isPtrValide()) {
             if (this->elem != NULL) {
 #ifdef DEBUG
-                std::cout << "     detaching to " << elem << std::endl;
+                std::cerr << "     detaching to " << elem << std::endl;
 #endif
                 this->isValide  = false;
                 this->garbage.template on_detach<T>(elem, *(this));
@@ -96,13 +96,13 @@ public :
     smart_ptr<T> &operator =(T *var_elem) 
     {
         #ifdef DEBUG
-            std::cout<< "smart_ptr operator =(elem *) "<< var_elem << std::endl;
+            std::cerr<< "smart_ptr operator =(elem *) "<< var_elem << std::endl;
         #endif
 
         if(this->elem != NULL) 
         {
             #ifdef DEBUG
-                std::cout << "      detaching smart_ptr detaching to its previous element" << std::endl;
+                std::cerr << "      detaching smart_ptr to its previous element" << std::endl;
             #endif
             this->isValide  = false;
             this->garbage. template on_detach<T>(this->elem, *(this));
@@ -111,7 +111,7 @@ public :
         if(var_elem != NULL ) 
         {
             #ifdef DEBUG
-                std::cout << "      smart_ptr attaching to element"<< std::endl;
+                std::cerr << "      smart_ptr attaching to element"<< std::endl;
             #endif
             this->isValide  = true;
             this->garbage.on_attach((void *) var_elem , *(this));
@@ -128,13 +128,13 @@ public :
     smart_ptr<T> &operator =(const smart_ptr<T> &ptr)  
     {
         #ifdef DEBUG
-            std::cout<< "smart_ptr operator =(const smart_ptr<T> &ptr)" << std::endl;
+            std::cerr<< "smart_ptr operator =(const smart_ptr<T> &ptr)" << std::endl;
         #endif
 
         if(this->elem != NULL)
         {
             #ifdef DEBUG
-                std::cout << " detaching smart_ptr detaching to its previous element" << std::endl;
+                std::cerr << "detaching smart_ptr to its previous element" << std::endl;
             #endif
             this->isValide  = false;
             this->garbage. template on_detach<T>(this->elem, *(this));
@@ -143,7 +143,7 @@ public :
         if(ptr.elem != NULL )
         {
             #ifdef DEBUG
-                std::cout << "	smart_ptr attaching to element"<< std::endl;
+                std::cerr << "	smart_ptr attaching to element"<< std::endl;
             #endif
             this->isValide  = true;
             this->garbage.on_attach((void *) ptr.elem, *(this));
@@ -160,7 +160,7 @@ public :
     virtual T & operator *() const
     {
         #ifdef DEBUG
-            std::cout<< "smart_ptr operator*() " << elem << std::endl;
+            std::cerr<< "smart_ptr operator*() " << elem << std::endl;
         #endif
         return (*elem);
     };
@@ -170,7 +170,7 @@ public :
     T *operator->() const 
     {
         #ifdef DEBUG
-            std::cout<< "smart_ptr operator->() " << std::endl;
+            std::cerr<< "smart_ptr operator->() " << std::endl;
         #endif
         return elem;
     };
@@ -186,7 +186,7 @@ public :
     {
         void * ans = static_cast<void *>(this->elem);
         #ifdef DEBUG
-            std::cout<< " void * smart_ptr::get_addr() const : " << ans <<  std::endl;
+            std::cerr<< "void * smart_ptr::get_addr() const : " << ans <<  std::endl;
         #endif
         return ans;
     }
@@ -194,13 +194,13 @@ public :
     virtual void force_detach()  
     {
         #ifdef DEBUG
-            std::cout << "virtual void force_detach() on " << this << std::endl;
+            std::cerr << "virtual void force_detach() on " << this << std::endl;
         #endif
 
         if(this->elem != NULL)
         {
             #ifdef DEBUG
-                std::cout << " detaching smart_ptr detaching to its previous element" << std::endl;
+                std::cerr << "detaching smart_ptr to its previous element" << std::endl;
             #endif
             this->isValide  = false;
             this->garbage. template on_detach<T>(elem, *(this));

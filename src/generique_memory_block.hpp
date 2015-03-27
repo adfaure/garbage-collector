@@ -8,7 +8,7 @@ class generique_memory_block {
 
     virtual void destroy() {
             #ifdef DEBUG
-                std::cout<< "detroy on base class" << std::endl;
+                std::cerr<< "detroy on base class" << std::endl;
             #endif
         }
 

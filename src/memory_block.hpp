@@ -21,7 +21,7 @@ class memory_block : public generique_memory_block {
 
     virtual void destroy() {
         #ifdef DEBUG
-            std::cout<< "destroy() memory block " << ptr << " (derived class)" << std::endl;
+            std::cerr<< "destroy() memory block " << ptr << " (derived class)" << std::endl;
         #endif
             delete ptr;
         };

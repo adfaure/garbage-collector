@@ -44,10 +44,10 @@ void init_tarja_info(tarjan_info & info, unsigned int index, unsigned int lowlin
     info.onStack = onstack;
 }
 
-void garbage_collector::TarjanAlgorithm() 
+void garbage_collector::TarjanAlgorithm(std::set<void *> memories)
 {
     #ifdef DEBUG
-        std::cout << "void garbage_collector::TarjanAlgorithm()" << std::endl;
+        std::cerr << "void garbage_collector::TarjanAlgorithm()" << std::endl;
     #endif
     
     // TARJAN STUFF:
@@ -56,23 +56,22 @@ void garbage_collector::TarjanAlgorithm()
     std::stack<void *> s;
     std::vector<void *> scc;
     std::map<void *, tarjan_info> indexM;
-    
-    for ( std::map<void *, std::set<generique_pointer *> >::const_iterator iter = this->memblocks.begin(); iter != this->memblocks.end(); ++iter )
+
+    for ( std::set<void *>::const_iterator iter = memories.begin(); iter != memories.end(); ++iter )
     {
-        if (indexM.find(iter->first) == indexM.end())
+        if (indexM.find(*iter) == indexM.end())
         {
-            std::vector<void *>  temp = this->strongconnect(iter->first,index ,indexM, s);
+            std::vector<void *>  temp = this->strongconnect(*iter,index ,indexM, s);
             scc.insert(scc.end(), temp.begin(), temp.end());
         }
     }
     
     // iter over scc
+#ifdef DEBUG
+    std::cerr<< "       found "<< scc.size() << " cycles" << std::endl;
+#endif
     for ( std::vector<void *>::iterator it = scc.begin(); it != scc.end(); it++ )
     {
-        #ifdef DEBUG
-            std::cout<< "-----------------------------scc-----------------------------" << std::endl;
-        #endif
-        std::cout << "*it : " << *it << std::endl;
         std::map<void*, std::set<generique_pointer*> >::iterator map_acces = this->memblocks.find(*it);
         if(map_acces != this->memblocks.end()) {
             std::set<generique_pointer *> ptrs = this->memblocks.at(*it);
@@ -84,12 +83,12 @@ void garbage_collector::TarjanAlgorithm()
             }
         } else {
 #ifdef DEBUG
-            std::cout<< "       block " << *it << " is not in the gc" << std::endl;
+            std::cerr<< "       block " << *it << " is not in the gc" << std::endl;
 #endif
         }
     }
 #ifdef DEBUG
-    std::cout<< "-----------------------------end-----------------------------" << std::endl;
+    std::cerr<< "-----------------------------end-----------------------------" << std::endl;
 #endif
 }
 
@@ -138,7 +137,7 @@ std::vector<void *> garbage_collector::strongconnect(void * v, unsigned int &ind
 garbage_collector::~garbage_collector() 
 {
     #ifdef DEBUG
-        std::cout<< "garbage_collector::~()" << std::endl;
+        std::cerr<< "garbage_collector::~()" << std::endl;
     #endif
     this->garbage_collect();
 }
@@ -149,8 +148,8 @@ std::set<void *> garbage_collector::dead_memoryblocks()
 {
 
     #ifdef DEBUG
-        std::cout << "garbage_collector::dead_memoryblocks()" << std::endl;
-        std::cout << "      there is " << this->memblocks.size() << " elements stored in the gc " << std::endl;
+        std::cerr << "garbage_collector::dead_memoryblocks()" << std::endl;
+        std::cerr << "      there is " << this->memblocks.size() << " elements stored in the gc " << std::endl;
     #endif
 
     std::set<void *> colored = this->coloration();
@@ -163,13 +162,13 @@ std::set<void *> garbage_collector::dead_memoryblocks()
         if (found == colored.end())
         {
             #ifdef DEBUG
-                std::cout << "      found a dead block "<< *found << std::endl;
+                std::cerr << "      found a dead block "<< *found << std::endl;
             #endif
             dead_memory_block.insert(iter->first);
         } else
         {
             #ifdef DEBUG
-                std::cout << "      found an alive block "<< *found << std::endl;
+                std::cerr << "      found an alive block "<< *found << std::endl;
             #endif
         }
     }
@@ -182,7 +181,7 @@ std::set<void *> garbage_collector::coloration()
 {
 
     #ifdef DEBUG
-        std::cout << "garbage_collector::coloration()" << std::endl;
+        std::cerr << "garbage_collector::coloration()" << std::endl;
     #endif
 
     std::set<void *> colored;
@@ -192,7 +191,7 @@ std::set<void *> garbage_collector::coloration()
     for (iter = this->stack_pointers.begin(); iter != this->stack_pointers.end(); ++iter) 
     {
         #ifdef DEBUG
-            std::cout << "    iterate over first level stack accessible generique_pointer, pushing " << (*iter)->get_addr() << std::endl;
+            std::cerr << "    iterate over first level stack accessible generique_pointer, pushing " << (*iter)->get_addr() << std::endl;
         #endif
         fifo.push((*iter)->get_addr());
     }
@@ -201,7 +200,7 @@ std::set<void *> garbage_collector::coloration()
     {
         void * p = fifo.front();
         #ifdef DEBUG
-            std::cout << "    block " << p <<" can be reach from stack " << std::endl;
+            std::cerr << "    block " << p <<" can be reach from stack " << std::endl;
         #endif
         fifo.pop();
         if (colored.find(p) == colored.end()) 
@@ -212,7 +211,7 @@ std::set<void *> garbage_collector::coloration()
             if (m != this->out.end()) 
             {
                 #ifdef DEBUG
-                    std::cout << "    block " << m->first <<" contains children " << std::endl;
+                    std::cerr << "    block " << m->first <<" contains children " << std::endl;
                 #endif
                 std::set<generique_pointer*>::const_iterator iter;
                 for (iter = m->second.begin(); iter != m->second.end(); ++iter) 
@@ -223,7 +222,7 @@ std::set<void *> garbage_collector::coloration()
         }
     }
     #ifdef DEBUG
-        std::cout << "    colored is a set of size " << colored.size() << std::endl;
+        std::cerr << "    colored is a set of size " << colored.size() << std::endl;
     #endif
     return colored;
 }
@@ -233,13 +232,13 @@ std::set<void *> garbage_collector::coloration()
 void garbage_collector::on_attach(void *mem, generique_pointer &ptr)
 {
     #ifdef DEBUG
-        std::cout<< "garbage_collector::on_attach() (" << mem <<")" <<std::endl;
+        std::cerr<< "garbage_collector::on_attach() (" << mem <<")" <<std::endl;
     #endif
     std::map<void*, std::set<generique_pointer*> >::iterator ptrs = this->memblocks.find(mem);
     if(ptrs == this->memblocks.end() && mem != NULL )
     {
         #ifdef DEBUG
-            std::cout<< "       no entry for " << mem << std::endl;
+            std::cerr<< "       no entry for " << mem << std::endl;
         #endif
     } else
     {
@@ -248,14 +247,14 @@ void garbage_collector::on_attach(void *mem, generique_pointer &ptr)
         if(key == NULL) 
         {
             #ifdef DEBUG
-                std::cout<< "       find pointer from stack pointing to " << mem << std::endl;
+                std::cerr<< "       find pointer from stack pointing to " << mem << std::endl;
             #endif
             this->stack_pointers.insert(&ptr);
         } else 
         {
             // key vaudra l'adresse du block m?moire auxquel appartient
             #ifdef DEBUG
-                std::cout<< "       add outgoing edge from ( " << key << ") to (" << mem <<")" << std::endl;
+                std::cerr<< "       add outgoing edge from ( " << key << ") to (" << mem <<")" << std::endl;
             #endif
             this->out.at(key).insert(&ptr);
         }
@@ -265,16 +264,16 @@ void garbage_collector::on_attach(void *mem, generique_pointer &ptr)
 void garbage_collector::garbage_collect()
 {
     #ifdef DEBUG
-        std::cout<< "garbage_collector::garbage_collect()" << std::endl;
-        std::cout<< "       there is " << this->memblocks.size() << " element in the gc " << std::endl;
+        std::cerr<< "garbage_collector::garbage_collect()" << std::endl;
+        std::cerr<< "       there is " << this->memblocks.size() << " element in the gc " << std::endl;
     #endif
-    this->TarjanAlgorithm();
+    this->TarjanAlgorithm(this->dead_memoryblocks());
 }
 
 void garbage_collector::on_new(void * memblock, std::size_t size)
 {
     #ifdef DEBUG
-        std::cout<< "garbage_collector::on_new(" << memblock << ") with size " << size << std::endl;
+        std::cerr<< "garbage_collector::on_new(" << memblock << ") with size " << size << std::endl;
     #endif
     std::set<generique_pointer*> outer_set, inner_set;
 
@@ -286,20 +285,20 @@ void garbage_collector::on_new(void * memblock, std::size_t size)
 void garbage_collector::resetInstance() 
 {
     #ifdef DEBUG
-        std::cout<< "garbage_collector::resetInstance()" << std::endl;
+        std::cerr<< "garbage_collector::resetInstance()" << std::endl;
     #endif
 }
 
 void * garbage_collector::find_outer_object_of(const generique_pointer * ptr) {
     #ifdef DEBUG
-        std::cout << "void* garbage_collector::find_outer_object_of(generique_pointer *ptr) " << std::endl;
+        std::cerr << "void* garbage_collector::find_outer_object_of(generique_pointer *ptr) " << std::endl;
     #endif
     for(std::map<void* , std::set<generique_pointer*> >::iterator it = this->memblocks.begin(); it != this->memblocks.end(); it++) 
     {
         if(it->first <= ptr && (it->first + this->assoc_size.at(it->first)) >= ptr)
         {
             #ifdef DEBUG
-                std::cout << "      pointer ("<< ptr <<") is from " << it->first << std::endl;
+                std::cerr << "      pointer ("<< ptr <<") is from " << it->first << std::endl;
             #endif
             return it->first;
         }
@@ -315,7 +314,7 @@ void * garbage_collector::find_outer_object_of(const generique_pointer * ptr) {
 void * operator new (size_t size, int) throw (std::bad_alloc)
 {
 #ifdef DEBUG
-    std::cout<< "operator new(size_t ) " << std::endl;
+    std::cerr<< "operator new(size_t ) " << std::endl;
 #endif
 
     void *p = malloc(size);
