@@ -1,13 +1,13 @@
 #ifndef _GARBAGE_HPP
 #define _GARBAGE_HPP
 
+#include <bits/stl_bvector.h>
 #include <iostream>
+#include <cstdlib> // for malloc() and free()
+#include <vector>
+#include <stack>
 #include <map>
 #include <set>
-#include <stack>
-#include <vector>
-#include <bits/stl_bvector.h>
-#include <cstdlib> // for malloc() and free()
 
 #include "generique_pointer.hpp"
 
@@ -48,18 +48,18 @@ public :
     template<typename T>
     void on_detach(void *mem, generique_pointer &ptr);
 
-    /** 
+    /**
      */
     void on_new(void *, std::size_t );
 
-    /** 
+    /**
      */
     void resetInstance();
 
 private :
 
     /* Get the children of a memoryblock
-    */
+     */
     std::set<void*> get_children(void *key);
 
     /** Brief description.
@@ -71,7 +71,7 @@ private :
     static garbage_collector instance;
 
     /** Returns a set of memoryblock that are not accessible from anywhere in stack
-    */
+     */
     std::set<void *> dead_memoryblocks();
 
     /** Returns a set of memoryblock that are accessible from anywhere in stack
@@ -79,76 +79,79 @@ private :
     std::set<void *> coloration();
 
     /** \brief return null if ptr is not attached to a memory block
-    */
+     */
     void * find_outer_object_of(generique_pointer *);
 
-        /** \brief Tarjan's strongly connected components algorithm
-     *  \param memories 
-     *  Using Tarjan's strongly connected components algorithm, we compute 
-     *   an association for each cyclic dependency to memories blocks, and we
-     *   force to liberate the leaked memory
-     */
+    /** \brief Tarjan's strongly connected components algorithm
+    *  \param memories
+    *  Using Tarjan's strongly connected components algorithm, we compute
+    *   an association for each cyclic dependency to memories blocks, and we
+    *   force to liberate the leaked memory
+    */
     void TarjanAlgorithm(std::set<void *> memories);
 
     /**
-    */
+     */
     std::vector<void *>  strongconnect(void * v, unsigned int &index, std::map<void *, tarjan_info> &parcours_info, std::stack<void*> &stack);
 
-    
     /**
-    */
+     */
     std::map<void *, info_mem> assoc;
-    
+
     /**
-    */
+     */
     std::set<generique_pointer*> stack_pointers;
-    
+
     /**
-    */
+     */
     std::set<generique_pointer *>& get_out_edges (void * memblock);
-    
+
     /**
-    */
+     */
     std::set<generique_pointer *>& get_in_edges (void * memblock);
-    
+
     /**
-    */
+     */
     void add_out_edges (void * memblock, generique_pointer &ptr);
-    
+
     /**
-    */    
+     */
     void add_in_edges (void * memblock, generique_pointer &ptr);
-    
+
     /**
-     */    
+     */
     void add_memblock(void * memblock);
-    
+
     /**
-     */    
+     */
     void remove_memblock(void * memblock);
-    
+
     /**
      */
     void remove_out_edges (void * memblock, generique_pointer &ptr);
-    
+
     /**
      */
     void remove_in_edges (void * memblock, generique_pointer &ptr);
-    
+
     /**
-     */    
+     */
     void set_size(void * memblock, std::size_t );
-    
+
     /**
-     */    
+     */
     std::size_t get_size (void * memblock);
-    
+
     /**
-     */    
+     */
     bool is_valid (void * memblock);
-    
+
     /**
-     */    
+     */
+    void set_valide(void * memblock, bool val);
+
+    /**
+     */
     bool is_exist(void * memblock);
 
     /** Private constructor to ensure the singleton pattern
@@ -168,7 +171,7 @@ void garbage_collector::on_detach(void *mem, generique_pointer &ptr)
     #endif
 
     std::set<generique_pointer*>::iterator stack_ptr = this->stack_pointers.find(&ptr);
-    if(stack_ptr != this->stack_pointers.end()) 
+    if(stack_ptr != this->stack_pointers.end())
     {
         #ifdef DEBUG
             std::cerr<< "       stack pointer on (" << mem <<") removed from stack_set "<< std::endl;
@@ -176,7 +179,7 @@ void garbage_collector::on_detach(void *mem, generique_pointer &ptr)
         this->stack_pointers.erase(&ptr);
     }
 
-    if(mem != NULL) 
+    if(mem != NULL)
     {
         if (!this->is_exist(mem))
         {
@@ -189,24 +192,23 @@ void garbage_collector::on_detach(void *mem, generique_pointer &ptr)
                 std::cerr << "	there is " << this->get_in_edges(mem).size() <<" pointer on "<< mem << std::endl;
             #endif
 
-            if (this->get_in_edges(mem).empty())
+            if (this->get_in_edges(mem).empty() && this->is_valid(mem))
             {
                 #ifdef DEBUG
                     std::cerr << "	no pointer on (" << mem << ")... deleting " << std::endl;
                 #endif
-                this->remove_memblock(mem);
 
                 // delete static_cast<T *>(mem);
                 // TODO : the three codes lines below can replace the delete and avoid mismatch operator warning in valgrind
-                
+
+                this->set_valide(mem, false);
                 T *elem_cast = static_cast<T *>(mem);
                 elem_cast->~T();
                 
                 // free(mem);
-                
             }
         }
-    } else 
+    } else
     {
         #ifdef DEBUG
             std::cerr << "	NULL " << mem << std::endl;
@@ -220,12 +222,12 @@ struct S_tarjan_info {
 };
 
 struct S_info_mem {
-    public : 
+    public :
         S_info_mem() : in(), out(), size(0), valid(true) {};
-    std::set<generique_pointer *> in;
-    std::set<generique_pointer *> out; 
-    std::size_t                   size;
-    bool                          valid;
+        std::set<generique_pointer *> in;
+        std::set<generique_pointer *> out;
+        std::size_t                   size;
+        bool                          valid;
 };
 
 #endif

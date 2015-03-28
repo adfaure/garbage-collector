@@ -26,7 +26,7 @@ std::set<void*> garbage_collector::get_children(void *key)
     {
         return  result;
     }
-    for(std::set<generique_pointer*>::iterator it = this->get_out_edges(key).begin(); it != this->get_out_edges(key).end(); it++) 
+    for (std::set<generique_pointer*>::iterator it = this->get_out_edges(key).begin(); it != this->get_out_edges(key).end(); it++) 
     { 
         result.insert((*it)->get_addr());
     }
@@ -272,7 +272,21 @@ void garbage_collector::garbage_collect()
         std::cerr<< "garbage_collector::garbage_collect()" << std::endl;
         std::cerr<< "       there is " << this->assoc.size() << " element in the gc " << std::endl;
     #endif
-    this->TarjanAlgorithm(this->dead_memoryblocks());
+    std::set<void *> dead_blocks = this->dead_memoryblocks(); 
+    for(std::set<void *>::iterator it = dead_blocks.begin(); it != dead_blocks.end(); it++) {
+        std::set<generique_pointer *> edges = this->get_in_edges(*it);
+        for (std::set<generique_pointer *>::iterator edge = edges.begin(); edge != edges.end(); edge++)
+        {
+            (*edge)->force_detach();
+        }
+    }
+    
+    for(std::map<void*, info_mem >::iterator it = this->assoc.begin(); it != this->assoc.end(); it++) {
+        if(!this->is_valid(it->first)) {
+            free(it->first);
+            //this->remove_memblock(it->first);
+        }
+    }
 }
 
 void garbage_collector::on_new(void * memblock, std::size_t size)
@@ -376,6 +390,12 @@ bool garbage_collector::is_valid (void * memblock) {
         return this->assoc.at(memblock).valid;
     }
     return false; // TODO what should we return in this case ?
+}
+
+void garbage_collector::set_valide(void * memblock, bool val) {
+    if(this->is_exist(memblock)) {
+        this->assoc.at(memblock).valid = val;
+    } 
 }
 
 bool garbage_collector::is_exist(void * memblock) {
