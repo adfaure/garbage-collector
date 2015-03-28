@@ -31,11 +31,11 @@ public :
      */
     static garbage_collector& get_instance();
 
-    /** Brief description.
+    /** Register a smart_pointer to the garbage collector
      */
     void on_attach(void *, generique_pointer &);
 
-    /** Brief description.
+    /** Unregister a smart_pointer to the garbage collector
      */
     template<typename T>
     void on_detach(void *mem, generique_pointer &ptr)
@@ -63,10 +63,10 @@ public :
                 #endif
             } else
             {
-#ifdef DEBUG
-                std::cerr << "	there is " << this->memblocks.at(mem).size() <<" pointer on "<< mem << std::endl;
-#endif
                 this->memblocks.at(mem).erase(&ptr);
+                #ifdef DEBUG
+                    std::cerr << "	there is " << this->memblocks.at(mem).size() <<" pointer on "<< mem << std::endl;
+                #endif
 
                 if (this->memblocks.at(mem).empty())
                 {
@@ -77,13 +77,14 @@ public :
                     this->out.erase(mem);
                     this->assoc_size.erase(mem);
 
-                    delete static_cast<T *>(mem);
+                    // delete static_cast<T *>(mem);
                     // TODO : the three codes lines below can replace the delete and avoid mismatch operator warning in valgrind
-                    /*
+                    // we dont have mismatch :)
+                    
                     T *elem_cast = static_cast<T *>(mem);
                     elem_cast->~T();
                     free(mem);
-                    */
+                    
                 }
             }
         } else 
@@ -94,27 +95,30 @@ public :
         }
     }
 
-    /**
+    /** Returns a set of memoryblock that are not accessible from anywhere in stack
     */
     std::set<void *> dead_memoryblocks();
 
-    /** return a set of acessible smartpointer
+    /** Returns a set of memoryblock that are accessible from anywhere in stack
      */
     std::set<void *> coloration();
 
-    /** Brief description.
+    /** 
      */
     void on_new(void *, std::size_t );
 
-    /** Brief description.
+    /** 
      */
     void resetInstance();
 
 private :
 
-    /**
-    *
-    */
+    /** \brief Tarjan's strongly connected components algorithm
+     *  \param memories 
+     *  Using Tarjan's strongly connected components algorithm, we compute 
+     *   an association for each cyclic dependency to memories blocks, and we
+     *   force to liberate the leaked memory
+     */
     void TarjanAlgorithm(std::set<void *> memories);
 
     /**
@@ -153,7 +157,7 @@ private :
     *
     */
     std::map<void* , std::size_t > assoc_size;
-
+    
     /**
     *
     */
@@ -168,6 +172,6 @@ private :
     ~garbage_collector();
 };
 
-void* operator new (std::size_t size, int bidon) throw (std::bad_alloc);
+void * operator new (std::size_t size, int bidon) throw (std::bad_alloc);
 
 #endif

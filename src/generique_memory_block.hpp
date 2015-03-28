@@ -7,10 +7,10 @@ class generique_memory_block {
     public :
 
     virtual void destroy() {
-            #ifdef DEBUG
-                std::cerr<< "detroy on base class" << std::endl;
-            #endif
-        }
+        #ifdef DEBUG
+            std::cerr<< "detroy on base class" << std::endl;
+        #endif
+    }
 
     virtual ~generique_memory_block(){}
 };

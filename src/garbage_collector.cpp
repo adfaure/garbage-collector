@@ -1,22 +1,14 @@
 #include <set>
 #include <queue>
-#include <stack>
 #include <string.h>
-#include <strings.h>
 #include "garbage_collector.hpp"
-#include <algorithm> 
+#include <stdint.h>
 
 #define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
 
 garbage_collector garbage_collector::instance;
 
-garbage_collector::garbage_collector() : memblocks(),
-                                         out(), 
-                                         assoc_size(), 
-                                         stack_pointers()
-{
-    
-}
+garbage_collector::garbage_collector() : memblocks(), out(), assoc_size(), stack_pointers() {}
 
 garbage_collector &garbage_collector::get_instance() 
 {
@@ -44,6 +36,12 @@ void init_tarja_info(tarjan_info & info, unsigned int index, unsigned int lowlin
     info.onStack = onstack;
 }
 
+/** \brief Tarjan's strongly connected components algorithm
+ *  \param memories 
+ *  Using Tarjan's strongly connected components algorithm, we compute 
+ *   an association for each cyclic dependency to memories blocks, and we
+ *   force to liberate the leaked memory
+ */
 void garbage_collector::TarjanAlgorithm(std::set<void *> memories)
 {
     #ifdef DEBUG
@@ -67,9 +65,10 @@ void garbage_collector::TarjanAlgorithm(std::set<void *> memories)
     }
     
     // iter over scc
-#ifdef DEBUG
-    std::cerr<< "       found "<< scc.size() << " cycles" << std::endl;
-#endif
+    // liberate memory, use a function:
+    #ifdef DEBUG
+        std::cerr<< "       found "<< scc.size() << " cycles" << std::endl;
+    #endif
     for ( std::vector<void *>::iterator it = scc.begin(); it != scc.end(); it++ )
     {
         std::map<void*, std::set<generique_pointer*> >::iterator map_acces = this->memblocks.find(*it);
@@ -77,19 +76,14 @@ void garbage_collector::TarjanAlgorithm(std::set<void *> memories)
             std::set<generique_pointer *> ptrs = this->memblocks.at(*it);
             for (std::set<generique_pointer *>::iterator it3 = ptrs.begin(); it3 != ptrs.end(); it3++)
             {
-                if((*it3)->isPtrValide()) {
-                    (*it3)->force_detach();
-                }
+                (*it3)->force_detach();
             }
         } else {
-#ifdef DEBUG
-            std::cerr<< "       block " << *it << " is not in the gc" << std::endl;
-#endif
+            #ifdef DEBUG
+                std::cerr<< "       block " << *it << " is not in the gc" << std::endl;
+            #endif
         }
     }
-#ifdef DEBUG
-    std::cerr<< "-----------------------------end-----------------------------" << std::endl;
-#endif
 }
 
 std::vector<void *> garbage_collector::strongconnect(void * v, unsigned int &index, std::map<void *, tarjan_info> &parcours_info, std::stack<void*> &stack)
@@ -118,7 +112,7 @@ std::vector<void *> garbage_collector::strongconnect(void * v, unsigned int &ind
     }
 
     std::vector<void *> scc;
-    if (node_info.index == node_info.lowlink) 
+    if (node_info.index == node_info.lowlink) // root nod
     {
         scc.push_back(stack.top());
         void *current_node;
@@ -295,7 +289,7 @@ void * garbage_collector::find_outer_object_of(const generique_pointer * ptr) {
     #endif
     for(std::map<void* , std::set<generique_pointer*> >::iterator it = this->memblocks.begin(); it != this->memblocks.end(); it++) 
     {
-        if(it->first <= ptr && (it->first + this->assoc_size.at(it->first)) >= ptr)
+        if(it->first <= ptr && ((uintptr_t)(it->first) + (uintptr_t)(this->assoc_size.at(it->first))) >= (uintptr_t)ptr)
         {
             #ifdef DEBUG
                 std::cerr << "      pointer ("<< ptr <<") is from " << it->first << std::endl;
@@ -313,9 +307,9 @@ void * garbage_collector::find_outer_object_of(const generique_pointer * ptr) {
  */
 void * operator new (size_t size, int) throw (std::bad_alloc)
 {
-#ifdef DEBUG
-    std::cerr<< "operator new(size_t ) " << std::endl;
-#endif
+    #ifdef DEBUG
+        std::cerr << "operator new(size_t )" << std::endl;
+    #endif
 
     void *p = malloc(size);
     if (p == 0)  // did malloc succeed?

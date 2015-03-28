@@ -15,7 +15,7 @@ class generique_pointer {
 
         friend class garbage_collector;
 
-        generique_pointer() : isValide(true), id(generique_pointer::inc_compteur()) {};
+        generique_pointer() : id(generique_pointer::inc_compteur()) {};
 
         virtual ~generique_pointer() {};
 
@@ -38,19 +38,20 @@ class generique_pointer {
             return NULL;
         };
 
+
         static long inc_compteur();
 
-        bool isPtrValide() {
-#ifdef DEBUG
-            std::cerr << "bool isvalide() " << isValide << std::endl;
-#endif
-            return isValide;
-        }
+        /*bool isPtrValide() {
+            #ifdef DEBUG
+                // std::cerr << "bool isvalide() " << isValide << std::endl;
+            #endif
+            return true;
+        }*/
 
-        mutable bool isValide;
+        //mutable bool isValide;
 private :
         long static long_auto_inc;
-        long id; /**< represent TODO */
+        long id; /**< represent identity */
 };
 
 #endif //_GARBAGE_COLLECTOR_GENERIQUE_POINTER_HPP_

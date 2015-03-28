@@ -78,16 +78,15 @@ public :
         #ifdef DEBUG
             std::cerr << "~smart_ptr() addr :  " << this << std::endl;
         #endif
-        if(isPtrValide()) {
-            if (this->elem != NULL) {
-#ifdef DEBUG
+
+        if (this->elem != NULL) {
+            #ifdef DEBUG
                 std::cerr << "     detaching to " << elem << std::endl;
-#endif
-                this->isValide  = false;
-                this->garbage.template on_detach<T>(elem, *(this));
-                this->elem = NULL;
-            }
+            #endif
+            this->garbage.template on_detach<T>(elem, *(this));
+            this->elem = NULL;
         }
+
     };
 
     /**
@@ -104,7 +103,6 @@ public :
             #ifdef DEBUG
                 std::cerr << "      detaching smart_ptr to its previous element" << std::endl;
             #endif
-            this->isValide  = false;
             this->garbage. template on_detach<T>(this->elem, *(this));
         }
 
@@ -113,7 +111,6 @@ public :
             #ifdef DEBUG
                 std::cerr << "      smart_ptr attaching to element"<< std::endl;
             #endif
-            this->isValide  = true;
             this->garbage.on_attach((void *) var_elem , *(this));
         }
 
@@ -136,7 +133,6 @@ public :
             #ifdef DEBUG
                 std::cerr << "detaching smart_ptr to its previous element" << std::endl;
             #endif
-            this->isValide  = false;
             this->garbage. template on_detach<T>(this->elem, *(this));
         }
 
@@ -145,8 +141,8 @@ public :
             #ifdef DEBUG
                 std::cerr << "	smart_ptr attaching to element"<< std::endl;
             #endif
-            this->isValide  = true;
             this->garbage.on_attach((void *) ptr.elem, *(this));
+            //this->garbage. template on_detach<T>((void *) ptr.elem, *(this));
         }
 
         //normal affectation
@@ -199,10 +195,6 @@ public :
 
         if(this->elem != NULL)
         {
-            #ifdef DEBUG
-                std::cerr << "detaching smart_ptr to its previous element" << std::endl;
-            #endif
-            this->isValide  = false;
             this->garbage. template on_detach<T>(elem, *(this));
         }
     };
