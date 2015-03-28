@@ -3,10 +3,13 @@
 
 #include <new>
 #include <iostream>
+#include <vector>
+
 #include <exception> // for std::bad_alloc
 #include <cstdlib> // for malloc() and free()
 
 #include "garbage_collector.hpp"
+
 
 /**
  * \brief smartPointer class
