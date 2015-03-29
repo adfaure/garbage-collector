@@ -1,0 +1,115 @@
+\hypertarget{classsmart__ptr}{\section{smart\-\_\-ptr$<$ T $>$ Class Template Reference}
+\label{classsmart__ptr}\index{smart\-\_\-ptr$<$ T $>$@{smart\-\_\-ptr$<$ T $>$}}
+}
+
+
+Our Smart pointer implementation.  
+
+
+
+
+{\ttfamily \#include $<$smart\-\_\-ptr.\-hpp$>$}
+
+Inheritance diagram for smart\-\_\-ptr$<$ T $>$\-:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classsmart__ptr}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classsmart__ptr_ae09faa6aeb5dd0f9587174c279410c4c}{\hyperlink{classsmart__ptr_ae09faa6aeb5dd0f9587174c279410c4c}{smart\-\_\-ptr} ()}\label{classsmart__ptr_ae09faa6aeb5dd0f9587174c279410c4c}
+
+\begin{DoxyCompactList}\small\item\em Construct a new smartpointer pointing to N\-U\-L\-L. \end{DoxyCompactList}\item 
+\hyperlink{classsmart__ptr_a9a21ea7b2a253280c101b85b31ad2074}{smart\-\_\-ptr} (const \hyperlink{classsmart__ptr}{smart\-\_\-ptr} \&rhs)
+\item 
+\hyperlink{classsmart__ptr_aa2d4a2bcc8befc68a31d340d97b3b33c}{smart\-\_\-ptr} (T $\ast$var\-\_\-elem)
+\item 
+\hyperlink{classsmart__ptr_a43518f1c6d475b5d462599780f07b769}{$\sim$smart\-\_\-ptr} ()
+\begin{DoxyCompactList}\small\item\em Destruct the Smart\-Pointer, and notify the garbage collector. \end{DoxyCompactList}\item 
+\hypertarget{classsmart__ptr_abc00d30772eeb6050f2db0639a80eb5f}{\hyperlink{classsmart__ptr}{smart\-\_\-ptr}$<$ T $>$ \& \hyperlink{classsmart__ptr_abc00d30772eeb6050f2db0639a80eb5f}{operator=} (T $\ast$var\-\_\-elem)}\label{classsmart__ptr_abc00d30772eeb6050f2db0639a80eb5f}
+
+\begin{DoxyCompactList}\small\item\em Overload of operator = in case of accessing to element. \end{DoxyCompactList}\item 
+\hypertarget{classsmart__ptr_abf4c44d2c4b0ded71dfa05ded4da6319}{\hyperlink{classsmart__ptr}{smart\-\_\-ptr}$<$ T $>$ \& \hyperlink{classsmart__ptr_abf4c44d2c4b0ded71dfa05ded4da6319}{operator=} (const \hyperlink{classsmart__ptr}{smart\-\_\-ptr}$<$ T $>$ \&ptr)}\label{classsmart__ptr_abf4c44d2c4b0ded71dfa05ded4da6319}
+
+\begin{DoxyCompactList}\small\item\em overload operator = in case of affectation to another smart pointers \end{DoxyCompactList}\item 
+\hypertarget{classsmart__ptr_ad7e692635bc33199ee7304d70279852b}{\hyperlink{classsmart__ptr}{smart\-\_\-ptr}$<$ T $>$ \& \hyperlink{classsmart__ptr_ad7e692635bc33199ee7304d70279852b}{operator=} (void $\ast$var\-\_\-elem)}\label{classsmart__ptr_ad7e692635bc33199ee7304d70279852b}
+
+\begin{DoxyCompactList}\small\item\em overload operator = in case of affectation to a generic adress \end{DoxyCompactList}\item 
+\hypertarget{classsmart__ptr_ae9512b5bbf3d31ea4d72d9f53b4f9aae}{virtual T \& \hyperlink{classsmart__ptr_ae9512b5bbf3d31ea4d72d9f53b4f9aae}{operator$\ast$} () const }\label{classsmart__ptr_ae9512b5bbf3d31ea4d72d9f53b4f9aae}
+
+\begin{DoxyCompactList}\small\item\em Deferencing element to access element. \end{DoxyCompactList}\item 
+\hypertarget{classsmart__ptr_a5335c11a725ec08cf9e178a5a87c0aa0}{T $\ast$ \hyperlink{classsmart__ptr_a5335c11a725ec08cf9e178a5a87c0aa0}{operator-\/$>$} () const }\label{classsmart__ptr_a5335c11a725ec08cf9e178a5a87c0aa0}
+
+\begin{DoxyCompactList}\small\item\em Overload arrow operator to member access on the pointed element. \end{DoxyCompactList}\item 
+\hypertarget{classsmart__ptr_a56b7836a7c412867e75e95626f83576e}{bool \hyperlink{classsmart__ptr_a56b7836a7c412867e75e95626f83576e}{operator==} (const T $\ast$r\-\_\-member)}\label{classsmart__ptr_a56b7836a7c412867e75e95626f83576e}
+
+\begin{DoxyCompactList}\small\item\em Egality operator. \end{DoxyCompactList}\item 
+\hypertarget{classsmart__ptr_a381c1f77e00684276099482b02b652a7}{T \& \hyperlink{classsmart__ptr_a381c1f77e00684276099482b02b652a7}{operator\mbox{[}$\,$\mbox{]}} (std\-::size\-\_\-t idx)}\label{classsmart__ptr_a381c1f77e00684276099482b02b652a7}
+
+\begin{DoxyCompactList}\small\item\em Overload \mbox{[}\mbox{]} operator to provide array-\/like access allowing both reading and writing. \end{DoxyCompactList}\item 
+\hypertarget{classsmart__ptr_a7aa281850218c59e7c8cf12a6f934e62}{const T \& \hyperlink{classsmart__ptr_a7aa281850218c59e7c8cf12a6f934e62}{operator\mbox{[}$\,$\mbox{]}} (std\-::size\-\_\-t idx) const }\label{classsmart__ptr_a7aa281850218c59e7c8cf12a6f934e62}
+
+\begin{DoxyCompactList}\small\item\em Overload \mbox{[}\mbox{]} operator to provide array-\/like access allowing both reading. \end{DoxyCompactList}\item 
+\hypertarget{classsmart__ptr_ae0aefbc3f4ce30265a11989cf1aaa3c9}{void $\ast$ \hyperlink{classsmart__ptr_ae0aefbc3f4ce30265a11989cf1aaa3c9}{get\-\_\-addr} () const }\label{classsmart__ptr_ae0aefbc3f4ce30265a11989cf1aaa3c9}
+
+\begin{DoxyCompactList}\small\item\em Virtual function from , this function gets the adress of pointed element as void$\ast$. \end{DoxyCompactList}\item 
+\hypertarget{classsmart__ptr_a7497c5dc4803cc5b3f1ca532336c799e}{virtual void \hyperlink{classsmart__ptr_a7497c5dc4803cc5b3f1ca532336c799e}{force\-\_\-detach} ()}\label{classsmart__ptr_a7497c5dc4803cc5b3f1ca532336c799e}
+
+\begin{DoxyCompactList}\small\item\em Virtual function from , force the pointer to quit his object. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classsmart__ptr_afbd57dbffd4a8a0b2df4a703fb4826d3}{{\footnotesize template$<$typename X $>$ }\\std\-::ostream \& \hyperlink{classsmart__ptr_afbd57dbffd4a8a0b2df4a703fb4826d3}{operator$<$$<$} (std\-::ostream \&os, const \hyperlink{classsmart__ptr}{smart\-\_\-ptr}$<$ X $>$ \&ptr)}\label{classsmart__ptr_afbd57dbffd4a8a0b2df4a703fb4826d3}
+
+\begin{DoxyCompactList}\small\item\em Overload to get the adress of pointed element. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename T$>$class smart\-\_\-ptr$<$ T $>$}
+
+Our Smart pointer implementation. 
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classsmart__ptr_a9a21ea7b2a253280c101b85b31ad2074}{\index{smart\-\_\-ptr@{smart\-\_\-ptr}!smart\-\_\-ptr@{smart\-\_\-ptr}}
+\index{smart\-\_\-ptr@{smart\-\_\-ptr}!smart_ptr@{smart\-\_\-ptr}}
+\subsubsection[{smart\-\_\-ptr}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename T $>$ {\bf smart\-\_\-ptr}$<$ T $>$\-::{\bf smart\-\_\-ptr} (
+\begin{DoxyParamCaption}
+\item[{const {\bf smart\-\_\-ptr}$<$ T $>$ \&}]{rhs}
+\end{DoxyParamCaption}
+)}}\label{classsmart__ptr_a9a21ea7b2a253280c101b85b31ad2074}
+Construct a new smartpointer based on an existing smartpointer 
+\begin{DoxyParams}{Parameters}
+{\em rhs} & an existing smartpointer we want to copy\\
+\hline
+\end{DoxyParams}
+Note that the copy semantic we choose is to share the element pointed by the rhs smartpointer with the newly created smartpointer \hypertarget{classsmart__ptr_aa2d4a2bcc8befc68a31d340d97b3b33c}{\index{smart\-\_\-ptr@{smart\-\_\-ptr}!smart\-\_\-ptr@{smart\-\_\-ptr}}
+\index{smart\-\_\-ptr@{smart\-\_\-ptr}!smart_ptr@{smart\-\_\-ptr}}
+\subsubsection[{smart\-\_\-ptr}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename T$>$ {\bf smart\-\_\-ptr}$<$ T $>$\-::{\bf smart\-\_\-ptr} (
+\begin{DoxyParamCaption}
+\item[{T $\ast$}]{var\-\_\-elem}
+\end{DoxyParamCaption}
+)}}\label{classsmart__ptr_aa2d4a2bcc8befc68a31d340d97b3b33c}
+Construct a new smartpointer based on an existing pointer on T 
+\begin{DoxyParams}{Parameters}
+{\em var\-\_\-element} & a pointer on i T instance \\
+\hline
+\end{DoxyParams}
+\hypertarget{classsmart__ptr_a43518f1c6d475b5d462599780f07b769}{\index{smart\-\_\-ptr@{smart\-\_\-ptr}!$\sim$smart\-\_\-ptr@{$\sim$smart\-\_\-ptr}}
+\index{$\sim$smart\-\_\-ptr@{$\sim$smart\-\_\-ptr}!smart_ptr@{smart\-\_\-ptr}}
+\subsubsection[{$\sim$smart\-\_\-ptr}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename T $>$ {\bf smart\-\_\-ptr}$<$ T $>$\-::$\sim${\bf smart\-\_\-ptr} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classsmart__ptr_a43518f1c6d475b5d462599780f07b769}
+
+
+Destruct the Smart\-Pointer, and notify the garbage collector. 
+
+Destruct the spartpointer, and notify the garbage collector. 
+
+The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+src/smart\-\_\-ptr.\-hpp\end{DoxyCompactItemize}

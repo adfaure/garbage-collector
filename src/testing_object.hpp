@@ -1,7 +1,6 @@
 #ifndef _GARBAGE_COLLECTOR_TESTTING_OBJECT_H_
 #define _GARBAGE_COLLECTOR_TESTTING_OBJECT_H_
 
-#include "testing_object.hpp"
 #include <iostream>
 #include "smart_ptr.hpp"
 

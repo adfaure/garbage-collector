@@ -1,0 +1,96 @@
+\hypertarget{classgarbage__collector}{\section{garbage\-\_\-collector Class Reference}
+\label{classgarbage__collector}\index{garbage\-\_\-collector@{garbage\-\_\-collector}}
+}
+
+
+This class represent our garbage collector.  
+
+
+
+
+{\ttfamily \#include $<$garbage\-\_\-collector.\-hpp$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{classgarbage__collector_a09aba23f6c605cad9b8d06a68d1ccb3d}{on\-\_\-attach} (void $\ast$mem, \hyperlink{classgenerique__pointer}{generique\-\_\-pointer} \&ptr)
+\begin{DoxyCompactList}\small\item\em Register an association smart\-\_\-pointer to memoryblock on the garbage collector. \end{DoxyCompactList}\item 
+{\footnotesize template$<$typename T $>$ }\\void \hyperlink{classgarbage__collector_a03cb5dbdb08bbbb52a116b2499905fd2}{on\-\_\-detach} (void $\ast$mem, \hyperlink{classgenerique__pointer}{generique\-\_\-pointer} \&ptr)
+\begin{DoxyCompactList}\small\item\em Unregister an association smart\-\_\-pointer to memoryblock to the garbage collector. \end{DoxyCompactList}\item 
+void \hyperlink{classgarbage__collector_a7819a3496e0090520bcf8504f8a1fa6e}{on\-\_\-new} (void $\ast$memblock, std\-::size\-\_\-t size)
+\begin{DoxyCompactList}\small\item\em Notify the garbage collector of a new allocated blocks. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classgarbage__collector_a006a84658a8b06f5f0adf151b9909edc}{static \hyperlink{classgarbage__collector}{garbage\-\_\-collector} \& \hyperlink{classgarbage__collector_a006a84658a8b06f5f0adf151b9909edc}{get\-\_\-instance} ()}\label{classgarbage__collector_a006a84658a8b06f5f0adf151b9909edc}
+
+\begin{DoxyCompactList}\small\item\em Get the instance of the singleton. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+This class represent our garbage collector. 
+
+\subsection{Member Function Documentation}
+\hypertarget{classgarbage__collector_a09aba23f6c605cad9b8d06a68d1ccb3d}{\index{garbage\-\_\-collector@{garbage\-\_\-collector}!on\-\_\-attach@{on\-\_\-attach}}
+\index{on\-\_\-attach@{on\-\_\-attach}!garbage_collector@{garbage\-\_\-collector}}
+\subsubsection[{on\-\_\-attach}]{\setlength{\rightskip}{0pt plus 5cm}void garbage\-\_\-collector\-::on\-\_\-attach (
+\begin{DoxyParamCaption}
+\item[{void $\ast$}]{mem, }
+\item[{{\bf generique\-\_\-pointer} \&}]{ptr}
+\end{DoxyParamCaption}
+)}}\label{classgarbage__collector_a09aba23f6c605cad9b8d06a68d1ccb3d}
+
+
+Register an association smart\-\_\-pointer to memoryblock on the garbage collector. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em mem} & the memory block used by the smartpointer \\
+\hline
+{\em ptr} & the smartpointer \\
+\hline
+\end{DoxyParams}
+\hypertarget{classgarbage__collector_a03cb5dbdb08bbbb52a116b2499905fd2}{\index{garbage\-\_\-collector@{garbage\-\_\-collector}!on\-\_\-detach@{on\-\_\-detach}}
+\index{on\-\_\-detach@{on\-\_\-detach}!garbage_collector@{garbage\-\_\-collector}}
+\subsubsection[{on\-\_\-detach}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename T $>$ void garbage\-\_\-collector\-::on\-\_\-detach (
+\begin{DoxyParamCaption}
+\item[{void $\ast$}]{mem, }
+\item[{{\bf generique\-\_\-pointer} \&}]{ptr}
+\end{DoxyParamCaption}
+)}}\label{classgarbage__collector_a03cb5dbdb08bbbb52a116b2499905fd2}
+
+
+Unregister an association smart\-\_\-pointer to memoryblock to the garbage collector. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em mem} & \\
+\hline
+{\em ptr} & \\
+\hline
+\end{DoxyParams}
+\hypertarget{classgarbage__collector_a7819a3496e0090520bcf8504f8a1fa6e}{\index{garbage\-\_\-collector@{garbage\-\_\-collector}!on\-\_\-new@{on\-\_\-new}}
+\index{on\-\_\-new@{on\-\_\-new}!garbage_collector@{garbage\-\_\-collector}}
+\subsubsection[{on\-\_\-new}]{\setlength{\rightskip}{0pt plus 5cm}void garbage\-\_\-collector\-::on\-\_\-new (
+\begin{DoxyParamCaption}
+\item[{void $\ast$}]{memblock, }
+\item[{std\-::size\-\_\-t}]{size}
+\end{DoxyParamCaption}
+)}}\label{classgarbage__collector_a7819a3496e0090520bcf8504f8a1fa6e}
+
+
+Notify the garbage collector of a new allocated blocks. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em void} & $\ast$ the adress of the new element \\
+\hline
+{\em std\-::size\-\_\-t} & the size of the new block \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following files\-:\begin{DoxyCompactItemize}
+\item 
+src/garbage\-\_\-collector.\-hpp\item 
+src/garbage\-\_\-collector.\-cpp\end{DoxyCompactItemize}

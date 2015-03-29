@@ -252,8 +252,6 @@ private :
      */
     ~garbage_collector();
     
-#ifdef DEBUG
-    
     unsigned long total_size;
     
     unsigned long total_removed_size;
@@ -261,8 +259,7 @@ private :
     unsigned long current_size;
     
     unsigned long invalide_size;
-    
-#endif 
+     
 };
 
 template<typename T>
@@ -296,12 +293,15 @@ void garbage_collector::on_detach(void *mem, generique_pointer &ptr) {
             if (this->get_in_edges(mem).empty() && this->is_valid(mem)) {
                 #ifdef DEBUG
                     std::cerr << "	no pointer left on (" << mem << ") ... destructor will be called " << std::endl;
-                    this->invalide_size += this->get_size(mem);
                 #endif
+                this->invalide_size += this->get_size(mem);
                 this->set_valide(mem, false);
                 this->invalid_blocks.push(mem);
                 T *elem_cast = static_cast<T *>(mem);
                 elem_cast->~T();
+                if(this->invalid_blocks.size() > 10) {
+                    this->small_garbage_collection();
+                }
             } else {
                 full_garbage_collection();
             }

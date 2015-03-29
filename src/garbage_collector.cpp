@@ -11,14 +11,11 @@ garbage_collector garbage_collector::instance;
 
 garbage_collector::garbage_collector(): invalid_blocks(), lock(false), 
                                         assoc(),
-                                        stack_pointers()
-                                        #ifdef DEBUG 
-                                            ,
-                                            total_size(0),
-                                            total_removed_size(0),
-                                            current_size(0),
-                                            invalide_size(0)
-                                        #endif
+                                        stack_pointers(),
+                                        total_size(0),
+                                        total_removed_size(0),
+                                        current_size(0),
+                                        invalide_size(0)
 {
     
 }
@@ -87,15 +84,15 @@ void garbage_collector::TarjanAlgorithm(std::set<void *> memories) {
 void garbage_collector::print_state() {
     std::map<void *, info_mem>::iterator iter;
     std::cout << std::endl << std::endl;
-    std::cout << "--------------------PRINT STATE-----------------" << std::endl;
+    std::cout << "--------------------PRINT STATE-----------------" << std::endl;   
     #ifdef DEBUG
         std::cout << "--------------------DEBUG MODE-----------------" << std::endl;
-        std::cout << "total size allocated   : " << this->total_size <<std::endl;
-        std::cout << "total removed          : " << this->total_removed_size <<std::endl;
-        std::cout << "current allocated size : " << this->current_size <<std::endl;
-        std::cout << "current invalide size  : " << this->invalide_size <<std::endl;
-    
     #endif
+        std::cout << "total size allocated   : " << this->total_size  << " bytes" <<std::endl;
+        std::cout << "total removed          : " << this->total_removed_size   << " bytes"  <<std::endl;
+        std::cout << "current allocated size : " << this->current_size  << " bytes"  <<std::endl;
+        std::cout << "current invalide size  : " << this->invalide_size  << " bytes"   <<std::endl;
+    
     std::cout << "-----------------------------------------------" << std::endl;
     for (iter = this->assoc.begin(); iter != this->assoc.end(); ++iter) {
         std::cout << "memblockAddr : ";
@@ -173,8 +170,8 @@ garbage_collector::~garbage_collector() {
     #ifdef DEBUG
         std::cerr<< "garbage_collector::~()" << std::endl;
     #endif
-    this->print_state();
     this->full_garbage_collection();
+    this->print_state();
     
 }
 
@@ -315,10 +312,10 @@ int garbage_collector::small_garbage_collection() {
     // if there is still invalids memories blocks
     while(!this->invalid_blocks.empty()) {
         void *current = this->invalid_blocks.top(); this->invalid_blocks.pop();
-        #ifdef DEBUG
-            this->total_removed_size += this->get_size(current);
-            this->invalide_size -= this->get_size(current);
-        #endif
+
+        this->total_removed_size += this->get_size(current);
+        this->invalide_size -= this->get_size(current);
+        this->current_size -= this->get_size(current);
         free(current);
         this->remove_memblock(current);
     }
@@ -354,9 +351,11 @@ void garbage_collector::on_new(void * memblock, std::size_t size)
 {
     #ifdef DEBUG
         std::cerr<< "garbage_collector::on_new(" << memblock << ") with size " << size << std::endl;
-        this->total_size += size;
-        this->current_size += size;
     #endif
+    
+    this->total_size += size;
+    this->current_size += size;
+    
     this->add_memblock(memblock);
     this->set_size(memblock, size);
 }
