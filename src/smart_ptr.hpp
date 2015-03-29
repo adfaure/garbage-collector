@@ -51,10 +51,6 @@ public :
      */
     smart_ptr<T> &operator =(const smart_ptr<T> &ptr) ;
 
-    /**
-     * \brief overload operator = in case of affectation to a generic adress
-     */
-    smart_ptr<T> &operator =(void *var_elem);
     
     /**
      * \brief Deferencing element to access element
@@ -215,31 +211,6 @@ smart_ptr<T> &smart_ptr<T>::operator =(T *var_elem)
     return (*this);
 }
 
-template<typename T>
-smart_ptr<T> &smart_ptr<T>::operator =(void *var_elem) 
-{
-    #ifdef DEBUG
-        std::cerr<< "-----------------smart_ptr operator = (void* = " << var_elem << ") " << std::endl;
-    #endif
-    T *temp = elem;
-    elem = static_cast<T*>(var_elem);
-    if(temp != NULL) 
-    {
-        #ifdef DEBUG
-            std::cerr << "      detaching smart_ptr to its previous element" << std::endl;
-        #endif
-        this->garbage. template on_detach<T>(temp, *(this));
-    }
-
-    if(var_elem != NULL ) 
-    {
-        #ifdef DEBUG
-            std::cerr << "      smart_ptr attaching to element"<< std::endl;
-        #endif
-        this->garbage.on_attach((void *) var_elem , *(this));
-    }
-    return (*this);
-}
 
 template<typename T>
 smart_ptr<T> &smart_ptr<T>::operator =(const smart_ptr<T> &ptr)  
