@@ -35,20 +35,15 @@ class generique_pointer {
         };
 
         virtual void * get_addr() const {
+            #ifdef DEBUG
+                std::cerr << "virtual void * generique_pointer::get_addr() const" << std::endl;
+            #endif
             return NULL;
         };
 
 
         static long inc_compteur();
 
-        /*bool isPtrValide() {
-            #ifdef DEBUG
-                // std::cerr << "bool isvalide() " << isValide << std::endl;
-            #endif
-            return true;
-        }*/
-
-        //mutable bool isValide;
 private :
         long static long_auto_inc;
         long id; /**< represent identity */

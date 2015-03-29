@@ -98,8 +98,7 @@ smart_ptr<T>::smart_ptr(T* var_elem = NULL) :  generique_pointer(),
             std::cerr << "	smart_ptr initializing to ("<< var_elem <<") (used on attach)" << std::endl;
         #endif
         this->garbage.on_attach((void *) var_elem, *(this));
-    } else
-    {
+    } else {
         #ifdef DEBUG
             std::cerr << "	smart_ptr initializing to NULL " << std::endl;
         #endif
@@ -121,8 +120,7 @@ smart_ptr<T>::smart_ptr(const smart_ptr & rhs) : generique_pointer(),
             std::cerr << "	smart_ptr initializing to ("<< rhs.elem <<") (used on attach)" << std::endl;
         #endif
         this->garbage.on_attach((void *) rhs.elem, *(this));
-    } else
-    {
+    } else {
         #ifdef DEBUG
             std::cerr << "	smart_ptr initializing to NULL " << std::endl;
         #endif
@@ -146,7 +144,6 @@ smart_ptr<T>::~smart_ptr()
         this->garbage.template on_detach<T>(elem, *(this));
         this->elem = NULL;
     }
-
 }
 
 template<typename T>
@@ -155,13 +152,14 @@ smart_ptr<T> &smart_ptr<T>::operator =(T *var_elem)
     #ifdef DEBUG
         std::cerr<< "smart_ptr operator =(elem *) "<< var_elem << std::endl;
     #endif
-
-    if(this->elem != NULL) 
+    T *temp = elem;
+    elem = var_elem;
+    if(temp != NULL) 
     {
         #ifdef DEBUG
             std::cerr << "      detaching smart_ptr to its previous element" << std::endl;
         #endif
-        this->garbage. template on_detach<T>(this->elem, *(this));
+        this->garbage. template on_detach<T>(temp, *(this));
     }
 
     if(var_elem != NULL ) 
@@ -171,8 +169,6 @@ smart_ptr<T> &smart_ptr<T>::operator =(T *var_elem)
         #endif
         this->garbage.on_attach((void *) var_elem , *(this));
     }
-
-    elem = var_elem;
     return (*this);
 }
 
@@ -182,13 +178,14 @@ smart_ptr<T> &smart_ptr<T>::operator =(const smart_ptr<T> &ptr)
     #ifdef DEBUG
         std::cerr<< "smart_ptr operator =(const smart_ptr<T> &ptr)" << std::endl;
     #endif
-
-    if(this->elem != NULL)
+    T *temp = elem;
+    elem = ptr.elem;
+    if(temp != NULL)
     {
         #ifdef DEBUG
             std::cerr << "detaching smart_ptr to its previous element" << std::endl;
         #endif
-        this->garbage. template on_detach<T>(this->elem, *(this));
+        this->garbage. template on_detach<T>(temp, *(this));
     }
 
     if(ptr.elem != NULL )
@@ -200,7 +197,6 @@ smart_ptr<T> &smart_ptr<T>::operator =(const smart_ptr<T> &ptr)
     }
 
     //normal affectation
-    this->elem = ptr.elem;
     return (*this);
 }
 

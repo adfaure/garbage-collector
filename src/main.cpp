@@ -1,3 +1,5 @@
+
+
 #include<iostream>
 #include "smart_ptr.hpp"
 
@@ -15,6 +17,8 @@ struct CC
 int main()
 {
     {
+        POINTEUR(double) test = new(0) double(10.0);
+        POINTEUR(char) test2 = new(0) char(1);
         POINTEUR(int) pp;
         {
             POINTEUR(int) p = new(1) int; // ou bien new(1) int pour une surcharge d??di??e du new

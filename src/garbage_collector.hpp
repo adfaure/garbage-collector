@@ -12,10 +12,12 @@
 #include "generique_pointer.hpp"
 
 /**
+ * Store informations we use on the computation of the Tarjan's Algorithm
  */
 typedef struct S_tarjan_info tarjan_info;
 
 /**
+ * Store informations about a specific memoryblock
  */
 typedef struct S_info_mem info_mem;
 
@@ -49,6 +51,12 @@ public :
     void on_detach(void *mem, generique_pointer &ptr);
 
     /**
+     *  
+     */
+    template<typename T>
+    void intern_on_detach(void *mem, generique_pointer &ptr);
+
+    /**
      */
     void on_new(void *, std::size_t );
 
@@ -58,21 +66,56 @@ public :
 
 private :
 
-    /* Get the children of a memoryblock
+    /**
+     * 
      */
-    std::set<void*> get_children(void *key);
+    std::stack<void *> invalid_blocks;
 
+    /**
+     */ 
+    bool lock;
+    
+    /**
+     */
+    std::map<void *, info_mem> assoc;
+
+    /** Static instance of the singleton 
+     */
+    static garbage_collector instance;
+    
     /** Brief description.
      */
     void garbage_collect();
 
-    /** instance of the singleton
+    void print_state();
+
+    /** Get the children of a memoryblock
      */
-    static garbage_collector instance;
+    std::set<void*> get_children(void *key);
 
     /** Returns a set of memoryblock that are not accessible from anywhere in stack
      */
     std::set<void *> dead_memoryblocks();
+
+    /**
+     * \brief 
+     */
+     void fix_cycles(std::set<void *> dead_blocks);
+
+    /**
+     * \brief Small garbage collection
+     * \return the number of free-ed blocks
+     * We do a small garbage collection to free invalids memories blocks.
+     * An invalid memory block is a memory block that have destructor 
+     *  called on it but not yet freed.
+     */
+    int small_garbage_collection();
+
+    /**
+     * \brief Full garbage collection
+     * \return the number of free-ed blocks
+     */
+    int full_garbage_collection();
 
     /** Returns a set of memoryblock that are accessible from anywhere in stack
      */
@@ -92,17 +135,15 @@ private :
 
     /**
      */
-    std::vector<void *>  strongconnect(void * v, unsigned int &index, std::map<void *, tarjan_info> &parcours_info, std::stack<void*> &stack);
+    std::vector<void *> strongconnect(void * v, unsigned int &index, std::map<void *, tarjan_info> &parcours_info, std::stack<void*> &stack);
 
     /**
-     */
-    std::map<void *, info_mem> assoc;
-
-    /**
+     * Collection of smartpointers
      */
     std::set<generique_pointer*> stack_pointers;
 
     /**
+     * 
      */
     std::set<generique_pointer *>& get_out_edges (void * memblock);
 
@@ -161,58 +202,49 @@ private :
     /** Destructor
      */
     ~garbage_collector();
+
 };
 
 template<typename T>
-void garbage_collector::on_detach(void *mem, generique_pointer &ptr)
-{
+void garbage_collector::on_detach(void *mem, generique_pointer &ptr) {
     #ifdef DEBUG
         std::cerr<< "garbage_collector::on_detach() sur le block " << mem << std::endl;
     #endif
-
+    
     std::set<generique_pointer*>::iterator stack_ptr = this->stack_pointers.find(&ptr);
-    if(stack_ptr != this->stack_pointers.end())
-    {
+    if(stack_ptr != this->stack_pointers.end()) {
         #ifdef DEBUG
             std::cerr<< "       stack pointer on (" << mem <<") removed from stack_set "<< std::endl;
         #endif
         this->stack_pointers.erase(&ptr);
     }
-
-    if(mem != NULL)
-    {
-        if (!this->is_exist(mem))
-        {
+    
+    if(mem != NULL) {
+        if (!this->is_exist(mem)) {
+            // this should not be happend
             #ifdef DEBUG
                 std::cerr << "	no entry for : " << mem << std::endl;
             #endif
         } else {
+            
+            // remove the generic pointer from the map 
             this->remove_in_edges(mem, ptr);
             #ifdef DEBUG
-                std::cerr << "	there is " << this->get_in_edges(mem).size() <<" pointer on "<< mem << std::endl;
+                std::cerr << "	there is " << this->get_in_edges(mem).size() << " pointer attaching to "<< mem << std::endl;
             #endif
 
-            if (this->get_in_edges(mem).empty() && this->is_valid(mem))
-            {
+            if (this->get_in_edges(mem).empty() && this->is_valid(mem)) {
                 #ifdef DEBUG
-                    std::cerr << "	no pointer on (" << mem << ")... deleting " << std::endl;
+                    std::cerr << "	no pointer left on (" << mem << ") ... destructor will be called " << std::endl;
                 #endif
-
-                // delete static_cast<T *>(mem);
-                // TODO : the three codes lines below can replace the delete and avoid mismatch operator warning in valgrind
-
                 this->set_valide(mem, false);
+                this->invalid_blocks.push(mem);
                 T *elem_cast = static_cast<T *>(mem);
                 elem_cast->~T();
-                
-                // free(mem);
+            } else {
+                full_garbage_collection();
             }
         }
-    } else
-    {
-        #ifdef DEBUG
-            std::cerr << "	NULL " << mem << std::endl;
-        #endif
     }
 }
 
@@ -221,6 +253,9 @@ struct S_tarjan_info {
     bool onStack;
 };
 
+/**
+ * Store informations about a specific memoryblock
+ */
 struct S_info_mem {
     public :
         S_info_mem() : in(), out(), size(0), valid(true) {};

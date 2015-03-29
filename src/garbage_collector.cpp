@@ -1,4 +1,5 @@
 #include <set>
+#include <ctime>
 #include <queue>
 #include <string.h>
 #include "garbage_collector.hpp"
@@ -8,7 +9,8 @@
 
 garbage_collector garbage_collector::instance;
 
-garbage_collector::garbage_collector() : assoc(),
+garbage_collector::garbage_collector() : invalid_blocks(), lock(false), 
+                                         assoc(),
                                          stack_pointers()
 {
     
@@ -92,9 +94,43 @@ void garbage_collector::TarjanAlgorithm(std::set<void *> memories)
     }
 }
 
-std::vector<void *> garbage_collector::strongconnect(void * v, unsigned int &index, std::map<void *, tarjan_info> &parcours_info, std::stack<void*> &stack)
-{
+void garbage_collector::print_state() {
+    std::map<void *, info_mem>::iterator iter;
+    std::cout << std::endl << std::endl;
+    std::cout << "--------------------PRINT STATE-----------------" << std::endl;
+    
+    std::cout << "-----------------------------------------------" << std::endl;
+    for (iter = this->assoc.begin(); iter != this->assoc.end(); ++iter) {
+        std::cout << "memblockAddr : ";
+        std::cout << iter->first << std::endl;
+        
+        std::cout << "valid?: ";
+        std::cout << ((iter->second.valid) ? "true" : "false") << std::endl;
+        
+        std::cout << "size: ";
+        std::cout << iter->second.size << std::endl;
+        
+        // std::set<generique_pointer *> in;
+        std::set<generique_pointer *>::iterator iter2;
+        std::cout << "IN : ";
+        for (iter2 = iter->second.in.begin(); iter2 != iter->second.in.end(); ++iter2) {
+            std::cout << *iter2 << " , ";
+        }
+        std::cout << std::endl ;
+        
+        // std::set<generique_pointer *> out;
+        std::cout << "OUT : ";
+        for (iter2 = iter->second.out.begin(); iter2 != iter->second.out.end(); ++iter2) {
+            std::cout << *iter2 << " , ";
+        }
+        std::cout << std::endl ;
+        
+        std::cout << "-----------------------------------------------" << std::endl;
+    }
+    std::cout << std::endl << std::endl;
+} 
 
+std::vector<void *> garbage_collector::strongconnect(void * v, unsigned int &index, std::map<void *, tarjan_info> &parcours_info, std::stack<void*> &stack) {
     // Set the depth index for v to the smallest unused index
     #ifdef DEBUG
         std::cerr << "std::vector<void *> garbage_collector::strongconnect(void * "<< v <<", unsigned int &, std::map<void *, tarjan_info> &, std::stack<void*> &)" << std::endl;
@@ -144,13 +180,12 @@ garbage_collector::~garbage_collector()
     #ifdef DEBUG
         std::cerr<< "garbage_collector::~()" << std::endl;
     #endif
-    this->garbage_collect();
+   this->full_garbage_collection();
 }
 
 /**
  */
-std::set<void *> garbage_collector::dead_memoryblocks() 
-{
+std::set<void *> garbage_collector::dead_memoryblocks() {
 
     #ifdef DEBUG
         std::cerr << "garbage_collector::dead_memoryblocks()" << std::endl;
@@ -166,7 +201,7 @@ std::set<void *> garbage_collector::dead_memoryblocks()
         if (found == colored.end())
         {
             #ifdef DEBUG
-                std::cerr << "      found a dead block "<< *found << std::endl;
+                std::cerr << "      found a dead block "<< iter->first << std::endl;
             #endif
             dead_memory_block.insert(iter->first);
         } else
@@ -205,7 +240,7 @@ std::set<void *> garbage_collector::coloration()
 
     while(!fifo.empty()) 
     {
-        void * p = fifo.front();fifo.pop();
+        void * p = fifo.front(); fifo.pop();
         #ifdef DEBUG
             std::cerr << "    block " << p << " can be reach from stack " << std::endl;
         #endif
@@ -214,13 +249,18 @@ std::set<void *> garbage_collector::coloration()
         {
             colored.insert(p);
 
-            
             std::set<generique_pointer*> edges = this->get_out_edges(p);
+            // p est null
+            
             #ifdef DEBUG
-                std::cerr << "    block " << p << " contains" << edges.size() << "children " << std::endl;
+                std::cerr << "    block " << p << " contains " << edges.size() << " children " << std::endl;
             #endif
+            
             for (iter = edges.begin(); iter != edges.end(); ++iter) 
             {
+                 #ifdef DEBUG
+                    std::cerr << "   pushing addr : " << (*iter)->get_addr() << std::endl;
+                #endif               
                 fifo.push((*iter)->get_addr());
             }
         }
@@ -235,6 +275,9 @@ std::set<void *> garbage_collector::coloration()
  */
 void garbage_collector::on_attach(void *mem, generique_pointer &ptr)
 {
+    // TODO REMOVE ME 
+    // this->print_state();
+    
     #ifdef DEBUG
         std::cerr<< "garbage_collector::on_attach() (" << mem <<")" <<std::endl;
     #endif
@@ -272,21 +315,60 @@ void garbage_collector::garbage_collect()
         std::cerr<< "garbage_collector::garbage_collect()" << std::endl;
         std::cerr<< "       there is " << this->assoc.size() << " element in the gc " << std::endl;
     #endif
-    std::set<void *> dead_blocks = this->dead_memoryblocks(); 
+}
+
+void garbage_collector::fix_cycles(std::set<void*> dead_blocks) {
+    #ifdef DEBUG
+        std::cerr<< "void garbage_collector::fix_cycles(std::set<void*> dead_blocks)" << std::endl;
+    #endif
+    // iterate over the dead_blocks
     for(std::set<void *>::iterator it = dead_blocks.begin(); it != dead_blocks.end(); it++) {
+        // iterate over input edges of each dead blocks
         std::set<generique_pointer *> edges = this->get_in_edges(*it);
-        for (std::set<generique_pointer *>::iterator edge = edges.begin(); edge != edges.end(); edge++)
-        {
-            (*edge)->force_detach();
+        for (std::set<generique_pointer *>::iterator edge = edges.begin(); edge != edges.end(); edge++) {
+           if(this->is_valid(*it)) {
+                (*edge)->force_detach();
+            }
         }
     }
+}
+
+int garbage_collector::small_garbage_collection() {
+    std::vector<void *> free_block;
+    int nb_blocks_removed = this->invalid_blocks.size();
     
-    for(std::map<void*, info_mem >::iterator it = this->assoc.begin(); it != this->assoc.end(); it++) {
-        if(!this->is_valid(it->first)) {
-            free(it->first);
-            //this->remove_memblock(it->first);
-        }
+    // if there is still invalids memories blocks
+    while(!this->invalid_blocks.empty()) {
+        void *current = this->invalid_blocks.top(); this->invalid_blocks.pop();
+        free(current);
+        this->remove_memblock(current);
     }
+    return nb_blocks_removed;
+}
+
+int garbage_collector::full_garbage_collection() {
+    #ifdef DEBUG
+            std::cerr<< "------begin of-----int garbage_collector::full_garbage_collection()"  << std::endl;
+    #endif
+    if(!this->lock) {
+        this->lock = true;
+        this->fix_cycles(this->dead_memoryblocks());
+        #ifdef DEBUG
+            int nb = this->small_garbage_collection(); 
+            std::cerr<< "   "<< nb << " elements have been removed" << std::endl;
+            std::cerr<< "------end of----- int garbage_collector::full_garbage_collection()"  <<std::endl;
+            this->lock = false;
+            return nb;
+        #else
+            this->lock = false;
+            return this->small_garbage_collection(); 
+        #endif
+        } else {
+            #ifdef DEBUG
+                std::cerr<< "int garbage_collector::full_garbage_collection() is already running !"  << std::endl;
+            #endif 
+            return 0;
+        }
 }
 
 void garbage_collector::on_new(void * memblock, std::size_t size)
@@ -323,11 +405,6 @@ void * garbage_collector::find_outer_object_of(generique_pointer * ptr) {
     return NULL;
 }
 
-/**
- * Our own new function to be able to use our own allocator
- * \param size the size to allocate
- * \param _ to differentiate our new to the standalone new of C++
- */
 void * operator new (size_t size, int) throw (std::bad_alloc)
 {
     #ifdef DEBUG
@@ -343,8 +420,10 @@ void * operator new (size_t size, int) throw (std::bad_alloc)
     return p;
 }
 
-//TODO I test if memblock exist in the function, maybe it must be a requirment 
 std::set<generique_pointer *>& garbage_collector::get_out_edges (void * memblock) {
+    #ifdef DEBUG
+        std::cerr << "std::set<generique_pointer *>& garbage_collector::get_out_edges (void * "<< memblock << ") " <<std::endl;
+    #endif
     return this->assoc.at(memblock).out;
 }
 
@@ -401,7 +480,6 @@ void garbage_collector::set_valide(void * memblock, bool val) {
 bool garbage_collector::is_exist(void * memblock) {
     return (this->assoc.find(memblock) != this->assoc.end());
 }
-
 
 void garbage_collector::set_size(void * memblock, std::size_t size) {
     if(this->is_exist(memblock)) {

@@ -16,13 +16,18 @@ make clean
 ```
 Compilation et édition de liens:
 ```sh
-make
+make config=release
 ```
 Execution:
 ```sh
 ./Garbage_collector
 ```
 ## Dev
+IDEM sauf que l'on peut activer l'affichage debug
+Compilation et édition de liens:
+```sh
+make config=debug
+```
 
 ### Documentation
 
@@ -31,3 +36,9 @@ Generation d'une documentation doxygen:
 doxygen Doxyfile
 ```
 La documentation HTML est générée dans le répertoire **doc**
+
+
+## Niveaux de garbage collection
+### Niveau 1
+Parcours de tous les blocks de mémoire 
+
