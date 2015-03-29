@@ -9,9 +9,16 @@
 
 garbage_collector garbage_collector::instance;
 
-garbage_collector::garbage_collector() : invalid_blocks(), lock(false), 
-                                         assoc(),
-                                         stack_pointers()
+garbage_collector::garbage_collector(): invalid_blocks(), lock(false), 
+                                        assoc(),
+                                        stack_pointers()
+                                        #ifdef DEBUG 
+                                            ,
+                                            total_size(0),
+                                            total_removed_size(0),
+                                            current_size(0),
+                                            invalide_size(0)
+                                        #endif
 {
     
 }
@@ -98,7 +105,14 @@ void garbage_collector::print_state() {
     std::map<void *, info_mem>::iterator iter;
     std::cout << std::endl << std::endl;
     std::cout << "--------------------PRINT STATE-----------------" << std::endl;
+    #ifdef DEBUG
+        std::cout << "--------------------DEBUG MODE-----------------" << std::endl;
+        std::cout << "total size allocated   : " << this->total_size <<std::endl;
+        std::cout << "total removed          : " << this->total_removed_size <<std::endl;
+        std::cout << "current allocated size : " << this->current_size <<std::endl;
+        std::cout << "current invalide size  : " << this->invalide_size <<std::endl;
     
+    #endif
     std::cout << "-----------------------------------------------" << std::endl;
     for (iter = this->assoc.begin(); iter != this->assoc.end(); ++iter) {
         std::cout << "memblockAddr : ";
@@ -180,7 +194,10 @@ garbage_collector::~garbage_collector()
     #ifdef DEBUG
         std::cerr<< "garbage_collector::~()" << std::endl;
     #endif
+   this->print_state();
    this->full_garbage_collection();
+    this->print_state();
+    
 }
 
 /**
@@ -281,6 +298,7 @@ void garbage_collector::on_attach(void *mem, generique_pointer &ptr)
     #ifdef DEBUG
         std::cerr<< "garbage_collector::on_attach() (" << mem <<")" <<std::endl;
     #endif
+        this->print_state();
     
     std::map<void *, info_mem>::iterator ptrs = this->assoc.find(mem);
     if(ptrs == this->assoc.end() && mem != NULL )
@@ -340,6 +358,10 @@ int garbage_collector::small_garbage_collection() {
     // if there is still invalids memories blocks
     while(!this->invalid_blocks.empty()) {
         void *current = this->invalid_blocks.top(); this->invalid_blocks.pop();
+        #ifdef DEBUG
+            this->total_removed_size += this->get_size(current);
+            this->invalide_size -= this->get_size(current);
+        #endif
         free(current);
         this->remove_memblock(current);
     }
@@ -375,6 +397,8 @@ void garbage_collector::on_new(void * memblock, std::size_t size)
 {
     #ifdef DEBUG
         std::cerr<< "garbage_collector::on_new(" << memblock << ") with size " << size << std::endl;
+        this->total_size += size;
+        this->current_size += size;
     #endif
     this->add_memblock(memblock);
     this->set_size(memblock, size);
