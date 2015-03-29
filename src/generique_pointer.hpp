@@ -1,5 +1,5 @@
 //
-// Created by dadou on 19/03/15.
+// Created by FAURE Adrien u on 19/03/15.
 //
 
 #ifndef _GARBAGE_COLLECTOR_GENERIQUE_POINTER_HPP_
@@ -13,13 +13,25 @@ class generique_pointer {
 
     public :
 
-        friend class garbage_collector;
-
+        /**
+         * \brief default constructor 
+         */
         generique_pointer() : id(generique_pointer::inc_compteur()) {};
-
+        
+        /**
+         * \brief destructor
+         */
         virtual ~generique_pointer() {};
 
+        /**
+         * \brief virtual fonction, implemented in smart_ptr.hpp
+         */
         virtual void force_detach() = 0;
+
+        /**
+         * \brief virtual fonction, implemented in smart_ptr.hpp
+         */
+        virtual void * get_addr() const =  0;
 
         /** \brief return egality on generics pointers on their id attribute
          */
@@ -34,18 +46,18 @@ class generique_pointer {
                 return (this->id < rhs.id);
         };
 
-        virtual void * get_addr() const {
-            #ifdef DEBUG
-                std::cerr << "virtual void * generique_pointer::get_addr() const" << std::endl;
-            #endif
-            return NULL;
-        };
-
-
+        /**
+         * \brief increment a variable to count and identify all pointers
+         */
         static long inc_compteur();
 
 private :
+        /**
+         */
         long static long_auto_inc;
+        
+        /**
+         */
         long id; /**< represent identity */
 };
 

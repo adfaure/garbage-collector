@@ -29,47 +29,34 @@ garbage_collector &garbage_collector::get_instance() {
 
 std::set<void*> garbage_collector::get_children(void *key) {
     std::set<void*> result;
-    if(!this->is_exist(key)) 
-    {
+    if(!this->is_exist(key)) {
         return  result;
     }
-    for (std::set<generique_pointer*>::iterator it = this->get_out_edges(key).begin(); it != this->get_out_edges(key).end(); it++) 
-    { 
+    for (std::set<generique_pointer*>::iterator it = this->get_out_edges(key).begin(); it != this->get_out_edges(key).end(); it++) { 
         result.insert((*it)->get_addr());
     }
     return result;
 }
 
-void init_tarjan_info(tarjan_info & info, unsigned int index, unsigned int lowlink, bool onstack)
-{
+void init_tarjan_info(tarjan_info & info, unsigned int index, unsigned int lowlink, bool onstack) {
     info.index   = index;
     info.lowlink = lowlink;
     info.onStack = onstack;
 }
 
-/** \brief Tarjan's strongly connected components algorithm
- *  \param memories 
- *  Using Tarjan's strongly connected components algorithm, we compute 
- *   an association for each cyclic dependency to memories blocks, and we
- *   force to liberate the leaked memory
- */
-void garbage_collector::TarjanAlgorithm(std::set<void *> memories)
-{
+void garbage_collector::TarjanAlgorithm(std::set<void *> memories) {
     #ifdef DEBUG
         std::cerr << "void garbage_collector::TarjanAlgorithm()" << std::endl;
     #endif
     
-    // TARJAN STUFF:
     unsigned int index = 0;
     
     std::stack<void *> s;
     std::vector<void *> scc;
     std::map<void *, tarjan_info> indexM;
 
-    for ( std::set<void *>::const_iterator iter = memories.begin(); iter != memories.end(); ++iter )
-    {
-        if (indexM.find(*iter) == indexM.end())
-        {
+    for ( std::set<void *>::const_iterator iter = memories.begin(); iter != memories.end(); ++iter ) {
+        if (indexM.find(*iter) == indexM.end()) {
             std::vector<void *>  temp = this->strongconnect(*iter,index ,indexM, s);
             scc.insert(scc.end(), temp.begin(), temp.end());
         }
@@ -80,15 +67,13 @@ void garbage_collector::TarjanAlgorithm(std::set<void *> memories)
     #ifdef DEBUG
         std::cerr<< "       found "<< scc.size() << " cycles" << std::endl;
     #endif
-    for ( std::vector<void *>::iterator it = scc.begin(); it != scc.end(); it++ )
-    {
+    for ( std::vector<void *>::iterator it = scc.begin(); it != scc.end(); it++ ) {
         std::map<void*, info_mem>::iterator map_acces = this->assoc.find(*it);
         if(map_acces != this->assoc.end()) {
             info_mem info = this->assoc.at(*it);
             std::set<generique_pointer *> ptrs = info.in;
      
-            for (std::set<generique_pointer *>::iterator it3 = ptrs.begin(); it3 != ptrs.end(); it3++)
-            {
+            for (std::set<generique_pointer *>::iterator it3 = ptrs.begin(); it3 != ptrs.end(); it3++) {
                 (*it3)->force_detach();
             }
         } else {
@@ -122,7 +107,6 @@ void garbage_collector::print_state() {
         std::cout << "size: ";
         std::cout << iter->second.size << std::endl;
         
-        // std::set<generique_pointer *> in;
         std::set<generique_pointer *>::iterator iter2;
         std::cout << "IN : ";
         for (iter2 = iter->second.in.begin(); iter2 != iter->second.in.end(); ++iter2) {
@@ -130,7 +114,6 @@ void garbage_collector::print_state() {
         }
         std::cout << std::endl ;
         
-        // std::set<generique_pointer *> out;
         std::cout << "OUT : ";
         for (iter2 = iter->second.out.begin(); iter2 != iter->second.out.end(); ++iter2) {
             std::cout << *iter2 << " , ";
@@ -226,11 +209,6 @@ std::set<void *> garbage_collector::dead_memoryblocks() {
     return dead_memory_block;
 }
 
-/**
- * \brief Compute a coloration of smartpointers that are accessibles from the 
- *  stack
- * \return a set of accessibles smartpointers
- */
 std::set<void *> garbage_collector::coloration() {
 
     #ifdef DEBUG
@@ -281,13 +259,8 @@ std::set<void *> garbage_collector::coloration() {
     return colored;
 }
 
-/** return a set of accessibles smartpointer from a specific pointer
- */
 void garbage_collector::on_attach(void *mem, generique_pointer &ptr)
 {
-    // TODO REMOVE ME 
-    // this->print_state();
-    
     #ifdef DEBUG
         std::cerr<< "garbage_collector::on_attach() (" << mem <<")" <<std::endl;
     #endif
@@ -317,14 +290,6 @@ void garbage_collector::on_attach(void *mem, generique_pointer &ptr)
             this->add_out_edges(key, ptr);
         }
     }
-}
-
-void garbage_collector::garbage_collect()
-{
-    #ifdef DEBUG
-        std::cerr<< "garbage_collector::garbage_collect()" << std::endl;
-        std::cerr<< "       there is " << this->assoc.size() << " element in the gc " << std::endl;
-    #endif
 }
 
 void garbage_collector::fix_cycles(std::set<void*> dead_blocks) {
@@ -396,13 +361,6 @@ void garbage_collector::on_new(void * memblock, std::size_t size)
     this->set_size(memblock, size);
 }
 
-void garbage_collector::resetInstance() 
-{
-    #ifdef DEBUG
-        std::cerr<< "garbage_collector::resetInstance()" << std::endl;
-    #endif
-}
-
 void * garbage_collector::find_outer_object_of(generique_pointer * ptr) {
     #ifdef DEBUG
         std::cerr << "void * garbage_collector::find_outer_object_of(generique_pointer * ptr) " << std::endl;
@@ -469,7 +427,7 @@ bool garbage_collector::is_valid (void * memblock) {
     if(this->is_exist(memblock)) {
         return this->assoc.at(memblock).valid;
     }
-    return false; // TODO what should we return in this case ?
+    return false;
 }
 
 void garbage_collector::set_valide(void * memblock, bool val) {
@@ -503,25 +461,10 @@ void * operator new (size_t size, int) throw (std::bad_alloc)
     #endif
 
     void *p = malloc(size);
-    if (p == 0)  // did malloc succeed?
-    {
+    if (p == 0) { // did malloc succeed?
+    
         throw std::bad_alloc(); // ANSI/ISO compliant behavior
     }
     garbage_collector::get_instance().on_new(p, size);
     return p;
 }
-
-void* operator new[](std::size_t sz, int) throw (std::bad_alloc) {
-    #ifdef DEBUG
-        std::cerr << "void* operator new[](std::size_t "<< sz <<", int )" << std::endl;
-    #endif
-    void *p = malloc(sz);
-    #ifdef DEBUG
-        std::cerr << "      Get addr "<< p << std::endl;
-    #endif
-    if (p == 0)  { // did malloc succeed? 
-        throw std::bad_alloc(); // ANSI/ISO compliant behavior
-    }
-    garbage_collector::get_instance().on_new(p, sz);
-    return p;
-}   

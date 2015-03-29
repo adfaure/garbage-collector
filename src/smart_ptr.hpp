@@ -4,24 +4,22 @@
 #include <new>
 #include <iostream>
 #include <vector>
-
 #include <exception> // for std::bad_alloc
 
 #include "garbage_collector.hpp"
 
-
 /**
- * \brief smartPointer class
+ * \brief Our Smart pointer implementation
  */
 template<typename T>
-class smart_ptr : public generique_pointer
-{
+class smart_ptr : public generique_pointer {
 
 public :
 
-    /** Construct a new smartpointer pointing to nothing
+    /**
+     * \brief Construct a new smartpointer pointing to NULL
      */
-    smart_ptr(T* var_elem);
+    smart_ptr();
 
     /**
      * Construct a new smartpointer based on an existing smartpointer
@@ -33,17 +31,18 @@ public :
     smart_ptr(const smart_ptr & rhs);
 
     /**
-    *
-    */
-    smart_ptr();
+     * Construct a new smartpointer based on an existing pointer on T
+     * \param var_element a pointer on i T instance
+     */
+    smart_ptr(T* var_elem);
 
     /**
-     * \brief Destruct the spartpointer, and notify the garbage collector
+     * \brief Destruct the SmartPointer, and notify the garbage collector
      */
     ~smart_ptr();
     
     /**
-     * \brief overload of operator = in case of accessing to element
+     * \brief Overload of operator = in case of accessing to element
      */
     smart_ptr<T> &operator =(T *var_elem);
 
@@ -53,35 +52,51 @@ public :
     smart_ptr<T> &operator =(const smart_ptr<T> &ptr) ;
 
     /**
+     * \brief overload operator = in case of affectation to a generic adress
      */
     smart_ptr<T> &operator =(void *var_elem);
     
     /**
-     * \brief deferencing element to access element
+     * \brief Deferencing element to access element
      */
     virtual T & operator *() const;
     
-    /** Overload arrow operator to member access on the pointed element
+    /** 
+     * \brief Overload arrow operator to member access on the pointed element
      */
     T *operator->() const ;
     
-    /** Egality operator
+    /** 
+     * \brief Egality operator
      */
     inline bool operator==(const T* r_member);
 
-    T& operator[](std::size_t idx);
+    /**
+     * \brief Overload [] operator to provide array-like access allowing 
+     *        both reading and writing
+     */
+    T &operator[](std::size_t idx);
     
-    const T& operator[](std::size_t idx) const;
+    /**
+     * \brief Overload [] operator to provide array-like access allowing 
+     *        both reading
+     */
+    const T &operator[](std::size_t idx) const;
 
-    /** virtual function from @generique_pointer, get the adress of pointed element as void*
-    */
+    /** 
+     * \brief Virtual function from @generique_pointer, 
+     *        this function gets the adress of pointed element as void*
+     */
     void * get_addr() const;
 
-    /** virtual function from @generique_pointer, force the pointer to quit his object
-    */
+    /** 
+     * \brief Virtual function from @generique_pointer, 
+     *        force the pointer to quit his object
+     */
     virtual void force_detach();
 
-    /** Overload to get the adress of pointed element
+    /** 
+     * \brief Overload to get the adress of pointed element
      */
     template<typename X>
     friend std::ostream& operator<<(std::ostream &os, const smart_ptr<X> &ptr);

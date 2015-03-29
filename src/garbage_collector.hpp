@@ -12,26 +12,31 @@
 #include "generique_pointer.hpp"
 
 /**
+ * \deprecated {Use @fix_cycles instead} Tarjan algo is not used in the final version 
  * Store informations we use on the computation of the Tarjan's Algorithm
  */
 typedef struct S_tarjan_info tarjan_info;
 
 /**
- * Store informations about a specific memoryblock
- */
-typedef struct S_info_mem info_mem;
-
-/**
+ * \brief initialize the struct that contains usefull informations for the 
+ * Tarjan algo
  */
 void init_tarjan_info(tarjan_info & info, unsigned int index, unsigned int lowlink, bool onstack);
 
-/** overloaded new for the garbage_collector the whole programm must use new(0) now.
- */
-void * operator new (std::size_t size, int bidon) throw (std::bad_alloc);
-
 /**
+ * \brief Store informations about a specific memoryblock 
+ * (used to the garbage collector to keep information of all allocated blocks)
  */
-void* operator new[](std::size_t sz, int ) throw (std::bad_alloc);
+typedef struct S_info_mem info_mem;
+
+
+/** 
+ * \brief Overloaded new for the garbage_collector the whole programm must use new(0).
+ * \param size the size to allocate
+ * \param b this param is just here to differentiate our new with the 
+ *          builtin new of C++
+ */
+void * operator new (std::size_t size, int b) throw (std::bad_alloc);
 
 /**
  * \brief This class represent our garbage collector
@@ -40,68 +45,82 @@ class garbage_collector {
 
 public :
 
-    /** Get an instance of the singleton
+    /** 
+     * \brief Get the instance of the singleton
      */
     static garbage_collector& get_instance();
 
-    /** Register a smart_pointer to the garbage collector
+    /**
+     * \brief Register an association smart_pointer to memoryblock
+     *        on the garbage collector
+     * \param mem the memory block used by the smartpointer
+     * \param ptr the smartpointer
      */
-    void on_attach(void *, generique_pointer &);
+    void on_attach(void *mem, generique_pointer &ptr);
 
-    /** Unregister a smart_pointer to the garbage collector
+    /** 
+     * \brief Unregister an association smart_pointer to memoryblock to the garbage collector
+     * \param mem 
+     * \param ptr 
      */
     template<typename T>
     void on_detach(void *mem, generique_pointer &ptr);
 
     /**
-     *  
+     * \brief Notify the garbage collector of a new allocated blocks.
+     * \param void * the adress of the new element
+     * \param std::size_t the size of the new block
      */
-    template<typename T>
-    void intern_on_detach(void *mem, generique_pointer &ptr);
-
-    /**
-     */
-    void on_new(void *, std::size_t );
-
-    /**
-     */
-    void resetInstance();
+    void on_new(void * memblock, std::size_t size);
 
 private :
 
     /**
-     * 
+     * \brief Collection of memory blocks that are unreachable (dead), 
+     *        destructed (invalid), but not yet freed
      */
     std::stack<void *> invalid_blocks;
-
+    
     /**
+     * \brief Represent if the full GC is running or not
      */ 
     bool lock;
     
-    /**
+    /** 
+     * \brief Store informations about a specific memoryblock
      */
     std::map<void *, info_mem> assoc;
 
-    /** Static instance of the singleton 
+    /** 
+     * \brief Static instance of the singleton 
      */
     static garbage_collector instance;
     
-    /** Brief description.
+    /**
+     * Collection of smartpointers
      */
-    void garbage_collect();
+    std::set<generique_pointer*> stack_pointers;
 
+    /**
+     * \brief debug function, allow to print on the output the state of the garbage collector
+     */
     void print_state();
 
     /** Get the children of a memoryblock
+     * \param void * key the elemnts to get children
+     * \return std::set<void*> of all children as void*.
      */
     std::set<void*> get_children(void *key);
 
-    /** Returns a set of memoryblock that are not accessible from anywhere in stack
+    /** 
+     * \brief Returns a set of memoryblock that are not accessible from anywhere in stack
+     * \return std::set<void*> of all dead memory blocks
      */
     std::set<void *> dead_memoryblocks();
 
     /**
-     * \brief 
+     * \brief resolve cycles depencies by forcing all smart_pointer to detach to an element.
+     * \param std::set<void *> dead_blocks the block to freeing
      */
      void fix_cycles(std::set<void *> dead_blocks);
 
@@ -120,7 +139,8 @@ private :
      */
     int full_garbage_collection();
 
-    /** Returns a set of memoryblock that are accessible from anywhere in stack
+    /** \brief Return a set of memoryblock that are accessible from anywhere in stack
+     * \return std::set<void *> a set of all blocks reachable form the stack
      */
     std::set<void *> coloration();
 
@@ -137,64 +157,90 @@ private :
     void TarjanAlgorithm(std::set<void *> memories);
 
     /**
+     * \deprecated used for tarjan algorithm
      */
     std::vector<void *> strongconnect(void * v, unsigned int &index, std::map<void *, tarjan_info> &parcours_info, std::stack<void*> &stack);
 
     /**
-     * Collection of smartpointers
-     */
-    std::set<generique_pointer*> stack_pointers;
-
-    /**
-     * 
+     * \brief find all pointers owned by the void*
+     * \param void * the key of the object
      */
     std::set<generique_pointer *>& get_out_edges (void * memblock);
 
     /**
+     * \brief  find all pointers pointing to the void* passed in parameter
+     * \param void* the key
+     * \return std::set<generique_pointer *>& a collection of all smart pointers refering the key
      */
     std::set<generique_pointer *>& get_in_edges (void * memblock);
 
     /**
+     * \brief add a new outgoing edge
+     * \param the memory blocks
+     * \param a referenc to the pointer
      */
     void add_out_edges (void * memblock, generique_pointer &ptr);
 
-    /**
+   /**
+     * \brief add a new incoming edge
+     * \param the memory blocks
+     * \param a referenc to the pointer
      */
     void add_in_edges (void * memblock, generique_pointer &ptr);
 
     /**
+     * \brief a dd a new memblock to the garbage collector
      */
     void add_memblock(void * memblock);
 
     /**
+     * \brief remove a memblock to the garbage collector
      */
     void remove_memblock(void * memblock);
 
     /**
+     * \brief remove outgoing edge to the key
+     * \param void* 
+     * \param generique_pointer &
      */
     void remove_out_edges (void * memblock, generique_pointer &ptr);
 
     /**
+     * \brief remove incoming edge to the key
+     * \param void* 
+     * \param generique_pointer &
      */
     void remove_in_edges (void * memblock, generique_pointer &ptr);
 
     /**
+     * \brief set the size of a memory block
+     * \param void * the memory block
+     * \param std::size_t the size
      */
     void set_size(void * memblock, std::size_t );
 
     /**
+     * \brief the size of the void * passed in parameters
+     * \paramvoid * the addr of the memoryblock
      */
     std::size_t get_size (void * memblock);
 
     /**
+     * \brief this function return true if a memory block is invalide (the destructor have been call)
+     * \param void* the key to get this information
      */
     bool is_valid (void * memblock);
 
     /**
+     * \brief change the validity of an address (false means destructor have been call)
+     * \param void * the address
+     * \param bool the value
      */
     void set_valide(void * memblock, bool val);
 
     /**
+     * \brief return true if the garbage collector know the adress passed in parameters
+     * \param void * 
      */
     bool is_exist(void * memblock);
 
@@ -268,9 +314,6 @@ struct S_tarjan_info {
     bool onStack;
 };
 
-/**
- * Store informations about a specific memoryblock
- */
 struct S_info_mem {
     public :
         S_info_mem() : in(), out(), size(0), valid(true) {};

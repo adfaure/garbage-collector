@@ -5,7 +5,7 @@
 #include <iostream>
 #include "smart_ptr.hpp"
 
-/** Just a testing class to ensure the behavior of our smartpointers and GC
+/** \brief Just a testing class to ensure the behavior of our smartpointers and GC
  */
 class test_obj 
 {
@@ -21,10 +21,17 @@ class test_obj
             #ifdef DEBUG
                 std::cerr << "test_obj::test_obj()" << std::endl;
             #endif
-            //this->next = new(2) test_obj();
         }
     
         void add_dep(smart_ptr<test_obj> t) {
+            #ifdef DEBUG
+                std::cerr << "test_obj::test_obj()" << std::endl;
+            #endif
+            t->previous = this;
+            this->next = t;
+        }
+        
+        void add_simple_dep(smart_ptr<test_obj> t) {
             #ifdef DEBUG
                 std::cerr << "test_obj::test_obj()" << std::endl;
             #endif

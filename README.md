@@ -39,6 +39,16 @@ La documentation HTML est générée dans le répertoire **doc**
 
 
 ## Niveaux de garbage collection
-### Niveau 1
+### Niveau 1 (small_garbage_collection)
 Parcours de tous les blocks de mémoire 
+### Niveau 2 (full_garbage_collection)
+- Detection de cycle
+- On force les blocks morts à se détacher pour que le destructeur
+- 
+
+## Définitions
+### Block Valide / Block Invalide
+Un block valide est un block dont le destructeur n'a pas encore été appelé.
+### Block Vivant / Block Mort
+Un block vivant est un block accessible depuis le pile.
 
