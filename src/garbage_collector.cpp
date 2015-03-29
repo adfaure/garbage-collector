@@ -515,7 +515,7 @@ void* operator new[](std::size_t sz, int) throw (std::bad_alloc) {
     #ifdef DEBUG
         std::cerr << "void* operator new[](std::size_t "<< sz <<", int )" << std::endl;
     #endif
-    void *p = new char[sz];
+    void *p = malloc(sz);
     #ifdef DEBUG
         std::cerr << "      Get addr "<< p << std::endl;
     #endif

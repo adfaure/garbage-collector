@@ -33,6 +33,11 @@ public :
     smart_ptr(const smart_ptr & rhs);
 
     /**
+    *
+    */
+    smart_ptr();
+
+    /**
      * \brief Destruct the spartpointer, and notify the garbage collector
      */
     ~smart_ptr();
@@ -89,7 +94,10 @@ private :
 };
 
 template<typename T>
-smart_ptr<T>::smart_ptr(T* var_elem = NULL) :  generique_pointer(),
+smart_ptr<T>::smart_ptr() :  generique_pointer(), elem(NULL), garbage(garbage_collector::get_instance()) {}
+
+template<typename T>
+smart_ptr<T>::smart_ptr(T* var_elem) :  generique_pointer(),
                                     elem(var_elem),
                                     garbage(garbage_collector::get_instance())
 {
