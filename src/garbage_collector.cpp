@@ -23,13 +23,11 @@ garbage_collector::garbage_collector(): invalid_blocks(), lock(false),
     
 }
 
-garbage_collector &garbage_collector::get_instance() 
-{
+garbage_collector &garbage_collector::get_instance() {
     return (instance);
 }
 
-std::set<void*> garbage_collector::get_children(void *key)
-{
+std::set<void*> garbage_collector::get_children(void *key) {
     std::set<void*> result;
     if(!this->is_exist(key)) 
     {
@@ -173,8 +171,7 @@ std::vector<void *> garbage_collector::strongconnect(void * v, unsigned int &ind
     }
 
     std::vector<void *> scc;
-    if (node_info.index == node_info.lowlink) // root nod
-    {
+    if (node_info.index == node_info.lowlink) {
         scc.push_back(stack.top());
         void *current_node;
         do 
@@ -189,14 +186,12 @@ std::vector<void *> garbage_collector::strongconnect(void * v, unsigned int &ind
 }
 
 
-garbage_collector::~garbage_collector() 
-{
+garbage_collector::~garbage_collector() {
     #ifdef DEBUG
         std::cerr<< "garbage_collector::~()" << std::endl;
     #endif
-   this->print_state();
-   this->full_garbage_collection();
     this->print_state();
+    this->full_garbage_collection();
     
 }
 
@@ -236,15 +231,13 @@ std::set<void *> garbage_collector::dead_memoryblocks() {
  *  stack
  * \return a set of accessibles smartpointers
  */
-std::set<void *> garbage_collector::coloration() 
-{
+std::set<void *> garbage_collector::coloration() {
 
     #ifdef DEBUG
         std::cerr << "garbage_collector::coloration()" << std::endl;
     #endif
-
     std::set<void *> colored;
-    std::queue<void *> fifo;
+    std::stack<void *> filo;
 
     std::set<generique_pointer*>::const_iterator iter;
     for (iter = this->stack_pointers.begin(); iter != this->stack_pointers.end(); ++iter) 
@@ -252,12 +245,12 @@ std::set<void *> garbage_collector::coloration()
         #ifdef DEBUG
             std::cerr << "    iterate over first level stack accessible generique_pointer, pushing " << (*iter)->get_addr() << std::endl;
         #endif
-        fifo.push((*iter)->get_addr());
+        filo.push((*iter)->get_addr());
     }
 
-    while(!fifo.empty()) 
+    while(!filo.empty()) 
     {
-        void * p = fifo.front(); fifo.pop();
+        void * p = filo.top(); filo.pop();
         #ifdef DEBUG
             std::cerr << "    block " << p << " can be reach from stack " << std::endl;
         #endif
@@ -278,7 +271,7 @@ std::set<void *> garbage_collector::coloration()
                  #ifdef DEBUG
                     std::cerr << "   pushing addr : " << (*iter)->get_addr() << std::endl;
                 #endif               
-                fifo.push((*iter)->get_addr());
+                filo.push((*iter)->get_addr());
             }
         }
     }
@@ -298,7 +291,6 @@ void garbage_collector::on_attach(void *mem, generique_pointer &ptr)
     #ifdef DEBUG
         std::cerr<< "garbage_collector::on_attach() (" << mem <<")" <<std::endl;
     #endif
-        this->print_state();
     
     std::map<void *, info_mem>::iterator ptrs = this->assoc.find(mem);
     if(ptrs == this->assoc.end() && mem != NULL )
@@ -429,21 +421,6 @@ void * garbage_collector::find_outer_object_of(generique_pointer * ptr) {
     return NULL;
 }
 
-void * operator new (size_t size, int) throw (std::bad_alloc)
-{
-    #ifdef DEBUG
-        std::cerr << "operator new(size_t )" << std::endl;
-    #endif
-
-    void *p = malloc(size);
-    if (p == 0)  // did malloc succeed?
-    {
-        throw std::bad_alloc(); // ANSI/ISO compliant behavior
-    }
-    garbage_collector::get_instance().on_new(p, size);
-    return p;
-}
-
 std::set<generique_pointer *>& garbage_collector::get_out_edges (void * memblock) {
     #ifdef DEBUG
         std::cerr << "std::set<generique_pointer *>& garbage_collector::get_out_edges (void * "<< memblock << ") " <<std::endl;
@@ -518,3 +495,33 @@ std::size_t garbage_collector::get_size (void * memblock) {
         return 0;
     }
 }
+
+void * operator new (size_t size, int) throw (std::bad_alloc)
+{
+    #ifdef DEBUG
+        std::cerr << "operator new(size_t )" << std::endl;
+    #endif
+
+    void *p = malloc(size);
+    if (p == 0)  // did malloc succeed?
+    {
+        throw std::bad_alloc(); // ANSI/ISO compliant behavior
+    }
+    garbage_collector::get_instance().on_new(p, size);
+    return p;
+}
+
+void* operator new[](std::size_t sz, int) throw (std::bad_alloc) {
+    #ifdef DEBUG
+        std::cerr << "void* operator new[](std::size_t "<< sz <<", int )" << std::endl;
+    #endif
+    void *p = new char[sz];
+    #ifdef DEBUG
+        std::cerr << "      Get addr "<< p << std::endl;
+    #endif
+    if (p == 0)  { // did malloc succeed? 
+        throw std::bad_alloc(); // ANSI/ISO compliant behavior
+    }
+    garbage_collector::get_instance().on_new(p, sz);
+    return p;
+}   

@@ -6,7 +6,6 @@
 #include <vector>
 
 #include <exception> // for std::bad_alloc
-#include <cstdlib> // for malloc() and free()
 
 #include "garbage_collector.hpp"
 
@@ -43,12 +42,15 @@ public :
      */
     smart_ptr<T> &operator =(T *var_elem);
 
-
     /**
      * \brief overload operator = in case of affectation to another smart pointers
      */
     smart_ptr<T> &operator =(const smart_ptr<T> &ptr) ;
 
+    /**
+     */
+    smart_ptr<T> &operator =(void *var_elem);
+    
     /**
      * \brief deferencing element to access element
      */
@@ -62,6 +64,10 @@ public :
      */
     inline bool operator==(const T* r_member);
 
+    T& operator[](std::size_t idx);
+    
+    const T& operator[](std::size_t idx) const;
+
     /** virtual function from @generique_pointer, get the adress of pointed element as void*
     */
     void * get_addr() const;
@@ -73,8 +79,6 @@ public :
     /** Overload to get the adress of pointed element
      */
     template<typename X>
-    
-    
     friend std::ostream& operator<<(std::ostream &os, const smart_ptr<X> &ptr);
 
 private :
@@ -90,7 +94,7 @@ smart_ptr<T>::smart_ptr(T* var_elem = NULL) :  generique_pointer(),
                                     garbage(garbage_collector::get_instance())
 {
     #ifdef DEBUG
-            std::cerr << "smart_ptr(T* elem = NULL)" << std::endl;
+            std::cerr << "smart_ptr(T* elem = "<< var_elem <<")" << std::endl;
     #endif
 
     if(this->elem != NULL) {
@@ -103,6 +107,22 @@ smart_ptr<T>::smart_ptr(T* var_elem = NULL) :  generique_pointer(),
             std::cerr << "	smart_ptr initializing to NULL " << std::endl;
         #endif
     }
+}
+
+template<typename T>
+T& smart_ptr<T>::operator[](std::size_t idx) { 
+    #ifdef DEBUG
+        std::cerr<< "T& smart_ptr<T>::operator[](std::size_t" << idx <<")" << std::endl;
+    #endif
+    return (this->elem)[idx];
+}
+
+template<typename T>
+const T& smart_ptr<T>::operator[](std::size_t idx) const {
+    #ifdef DEBUG
+        std::cerr<< "const T& smart_ptr<T>::operator[](std::size_t" << idx <<") const" << std::endl;
+    #endif
+    return (this->elem)[idx];
 }
 
 template<typename T>
@@ -150,10 +170,36 @@ template<typename T>
 smart_ptr<T> &smart_ptr<T>::operator =(T *var_elem) 
 {
     #ifdef DEBUG
-        std::cerr<< "smart_ptr operator =(elem *) "<< var_elem << std::endl;
+        std::cerr<< "-----------------smart_ptr operator = (T = " << var_elem << ") " << std::endl;
     #endif
     T *temp = elem;
     elem = var_elem;
+    if(temp != NULL) 
+    {
+        #ifdef DEBUG
+            std::cerr << "      detaching smart_ptr to its previous element" << std::endl;
+        #endif
+        this->garbage. template on_detach<T>(temp, *(this));
+    }
+
+    if(var_elem != NULL ) 
+    {
+        #ifdef DEBUG
+            std::cerr << "      smart_ptr attaching to element"<< std::endl;
+        #endif
+        this->garbage.on_attach((void *) var_elem , *(this));
+    }
+    return (*this);
+}
+
+template<typename T>
+smart_ptr<T> &smart_ptr<T>::operator =(void *var_elem) 
+{
+    #ifdef DEBUG
+        std::cerr<< "-----------------smart_ptr operator = (void* = " << var_elem << ") " << std::endl;
+    #endif
+    T *temp = elem;
+    elem = static_cast<T*>(var_elem);
     if(temp != NULL) 
     {
         #ifdef DEBUG

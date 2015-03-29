@@ -29,6 +29,9 @@ void init_tarjan_info(tarjan_info & info, unsigned int index, unsigned int lowli
  */
 void * operator new (std::size_t size, int bidon) throw (std::bad_alloc);
 
+/**
+ */
+void* operator new[](std::size_t sz, int ) throw (std::bad_alloc);
 
 /**
  * \brief This class represent our garbage collector
