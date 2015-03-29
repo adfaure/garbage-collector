@@ -119,7 +119,6 @@ void garbage_collector::print_state() {
         
         std::cout << "-----------------------------------------------" << std::endl;
     }
-    std::cout << std::endl << std::endl;
 } 
 
 std::vector<void *> garbage_collector::strongconnect(void * v, unsigned int &index, std::map<void *, tarjan_info> &parcours_info, std::stack<void*> &stack) {
@@ -171,6 +170,7 @@ garbage_collector::~garbage_collector() {
         std::cerr<< "garbage_collector::~()" << std::endl;
     #endif
     this->full_garbage_collection();
+    this->small_garbage_collection();
     this->print_state();
     
 }
@@ -192,16 +192,9 @@ std::set<void *> garbage_collector::dead_memoryblocks() {
         std::set<void *>::const_iterator found = colored.find(iter->first);
         if (found == colored.end())
         {
-            #ifdef DEBUG
-                std::cerr << "      found a dead block "<< iter->first << std::endl;
-            #endif
+
             dead_memory_block.insert(iter->first);
-        } else
-        {
-            #ifdef DEBUG
-                std::cerr << "      found an alive block "<< *found << std::endl;
-            #endif
-        }
+        } 
     }
     return dead_memory_block;
 }
@@ -293,13 +286,15 @@ void garbage_collector::fix_cycles(std::set<void*> dead_blocks) {
     #ifdef DEBUG
         std::cerr<< "void garbage_collector::fix_cycles(std::set<void*> dead_blocks)" << std::endl;
     #endif
-    // iterate over the dead_blocks
-    for(std::set<void *>::iterator it = dead_blocks.begin(); it != dead_blocks.end(); it++) {
-        // iterate over input edges of each dead blocks
-        std::set<generique_pointer *> edges = this->get_in_edges(*it);
-        for (std::set<generique_pointer *>::iterator edge = edges.begin(); edge != edges.end(); edge++) {
-           if(this->is_valid(*it)) {
-                (*edge)->force_detach();
+    if(dead_blocks.size() > 0) {
+        // iterate over the dead_blocks
+        for(std::set<void *>::iterator it = dead_blocks.begin(); it != dead_blocks.end(); it++) {
+            // iterate over input edges of each dead blocks
+            std::set<generique_pointer *> edges = this->get_in_edges(*it);
+            for (std::set<generique_pointer *>::iterator edge = edges.begin(); edge != edges.end(); edge++) {
+               if(this->is_valid(*it)) {
+                    (*edge)->force_detach();
+                }
             }
         }
     }
@@ -307,19 +302,24 @@ void garbage_collector::fix_cycles(std::set<void*> dead_blocks) {
 
 int garbage_collector::small_garbage_collection() {
     std::vector<void *> free_block;
+    if(!this->lock) {
     int nb_blocks_removed = this->invalid_blocks.size();
-    
-    // if there is still invalids memories blocks
-    while(!this->invalid_blocks.empty()) {
-        void *current = this->invalid_blocks.top(); this->invalid_blocks.pop();
-
-        this->total_removed_size += this->get_size(current);
-        this->invalide_size -= this->get_size(current);
-        this->current_size -= this->get_size(current);
-        free(current);
-        this->remove_memblock(current);
-    }
+            // if there is still invalids memories blocks
+            while(!this->invalid_blocks.empty()) {
+                void *current = this->invalid_blocks.top(); this->invalid_blocks.pop();
+        
+                this->total_removed_size += this->get_size(current);
+                this->invalide_size -= this->get_size(current);
+                this->current_size -= this->get_size(current);
+                free(current);
+                this->remove_memblock(current);
+        }
+    #ifdef DEBUG
+        std::cerr << " block removed on a small garbage collection  : " << nb_blocks_removed << std::endl;
+    #endif
     return nb_blocks_removed;
+    }
+    return 0;
 }
 
 int garbage_collector::full_garbage_collection() {
@@ -329,22 +329,9 @@ int garbage_collector::full_garbage_collection() {
     if(!this->lock) {
         this->lock = true;
         this->fix_cycles(this->dead_memoryblocks());
-        #ifdef DEBUG
-            int nb = this->small_garbage_collection(); 
-            std::cerr<< "   "<< nb << " elements have been removed" << std::endl;
-            std::cerr<< "------end of----- int garbage_collector::full_garbage_collection()"  <<std::endl;
-            this->lock = false;
-            return nb;
-        #else
-            this->lock = false;
-            return this->small_garbage_collection(); 
-        #endif
-        } else {
-            #ifdef DEBUG
-                std::cerr<< "int garbage_collector::full_garbage_collection() is already running !"  << std::endl;
-            #endif 
-            return 0;
-        }
+        this->lock = false;
+    }
+    return 0; 
 }
 
 void garbage_collector::on_new(void * memblock, std::size_t size)

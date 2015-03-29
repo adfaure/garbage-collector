@@ -22,11 +22,11 @@ class test_obj
             #endif
         }
     
-        void add_dep(smart_ptr<test_obj> t) {
+        void add_dep(smart_ptr<test_obj> &t) {
             #ifdef DEBUG
                 std::cerr << "test_obj::test_obj()" << std::endl;
             #endif
-            t->previous = this;
+            t->previous = (this);
             this->next = t;
         }
         
@@ -34,7 +34,6 @@ class test_obj
             #ifdef DEBUG
                 std::cerr << "test_obj::test_obj()" << std::endl;
             #endif
-            t->previous = this;
             this->next = t;
         }
         
@@ -42,8 +41,6 @@ class test_obj
                 #ifdef DEBUG
                     std::cerr << "test_obj::~test_obj()" << std::endl;
                 #endif
-                next = NULL;
-                previous = NULL;
             }
 
     private :

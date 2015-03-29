@@ -73,6 +73,26 @@ public :
      */
     void on_new(void * memblock, std::size_t size);
 
+    /**
+     * \brief debug function, allow to print on the output the state of the garbage collector
+     */
+    void print_state();
+    
+    /**
+     * \brief Small garbage collection
+     * \return the number of free-ed blocks
+     * We do a small garbage collection to free invalids memories blocks.
+     * An invalid memory block is a memory block that have destructor 
+     *  called on it but not yet freed.
+     */
+    int small_garbage_collection();
+
+    /**
+     * \brief Full garbage collection
+     * \return the number of free-ed blocks
+     */
+    int full_garbage_collection();
+    
 private :
 
     /**
@@ -100,12 +120,7 @@ private :
      * Collection of smartpointers
      */
     std::set<generique_pointer*> stack_pointers;
-
-    /**
-     * \brief debug function, allow to print on the output the state of the garbage collector
-     */
-    void print_state();
-
+    
     /** Get the children of a memoryblock
      * \param void * key the elemnts to get children
      * \return std::set<void*> of all children as void*.
@@ -123,21 +138,6 @@ private :
      * \param std::set<void *> dead_blocks the block to freeing
      */
      void fix_cycles(std::set<void *> dead_blocks);
-
-    /**
-     * \brief Small garbage collection
-     * \return the number of free-ed blocks
-     * We do a small garbage collection to free invalids memories blocks.
-     * An invalid memory block is a memory block that have destructor 
-     *  called on it but not yet freed.
-     */
-    int small_garbage_collection();
-
-    /**
-     * \brief Full garbage collection
-     * \return the number of free-ed blocks
-     */
-    int full_garbage_collection();
 
     /** \brief Return a set of memoryblock that are accessible from anywhere in stack
      * \return std::set<void *> a set of all blocks reachable form the stack
@@ -299,11 +299,14 @@ void garbage_collector::on_detach(void *mem, generique_pointer &ptr) {
                 this->invalid_blocks.push(mem);
                 T *elem_cast = static_cast<T *>(mem);
                 elem_cast->~T();
-                if(this->invalid_blocks.size() > 10) {
-                    this->small_garbage_collection();
-                }
+                this->small_garbage_collection();
+                
             } else {
-                full_garbage_collection();
+                if(this->invalid_blocks.size() > 100 ) {
+                    small_garbage_collection();
+                }  else {
+                    full_garbage_collection();
+                }
             }
         }
     }
